@@ -1,19 +1,5 @@
-export { }
-export class Record {
-    date: Date = new Date();
-    topic: string = "General";
-    movements: Movement[] = [];
-}
-export class Movement {
-    name: string = "";
-    weight: number = 0;
-    unit: UnitEnum = UnitEnum.Kg;
-    reps: number[] = [];
-}
-export enum UnitEnum {
-    Kg = 1,
-    Lb = 2
-}
+import { Movement, Record, UnitEnum } from "./Interfaces";
+
 export class RecordSerializer {
     static deserialize(records: string): Record[] {
         return records.split("\n\n").map(record => this.parseRecord(record));
