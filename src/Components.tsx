@@ -8,7 +8,7 @@ import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
 
 export function MovementComponent(props: Movement) {
-  return (<Typography sx={{ mb: 1.5 }} color="text.secondary">
+  return (<Typography sx={{ mb: 1.5 }} color="white">
     {props.name + " " + props.weight + "kg " + props.reps.join(" ")}
   </Typography>)
 }
@@ -31,9 +31,9 @@ export function RecordList(props: {
       (record) => props.selectedTypes.includes(record.topic)
     ).map((record) => {
       return (<div>
-        <Card sx={{ maxWidth: 300 }} variant="outlined">
+        <Card sx={{ color: "white", background: "rgb(50, 50, 50)" ,"border-radius":"10px","margin-bottom":"1px"}} variant="outlined">
           <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+            <Typography sx={{ fontSize: 14 }} color="rgba(255, 255, 255, 0.7)" gutterBottom>
               {record.date.getMonth() + "/" + record.date.getDate()}
             </Typography>
             <Typography variant="h5" component="div">

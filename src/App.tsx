@@ -24,9 +24,9 @@ function App() {
 }
 function MainTable(props: { rows: Record[] }) {
   const allTypes = new Set(props.rows.map((row) => row.topic));
-  const [selectedTypes, setSelectedTypes] = React.useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = React.useState<string[]>(["Chest"]);
   return (<div>
-    {<Stack direction="row" spacing={1}>
+    {<Stack direction="row" spacing={1} sx={{ background: "rgb(50, 50, 50)" }}>
       <div>{
         Array.from(allTypes.values()).map((type) => {
           return <Chip label={type} onClick={() => {
