@@ -35,7 +35,7 @@ export function Movements(props: {
 
 export function RecordList(props: {
   records: Record[],
-  setRecords: React.Dispatch<React.SetStateAction<Record[]>>,
+  setRecords: (records: Record[]) => void,
   selectedTypes: string[]
 }) {
   return (<div>

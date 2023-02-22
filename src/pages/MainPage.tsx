@@ -12,7 +12,7 @@ import { Record, RecordSerializer } from '../utils/RecordSerializer';
 import { DetectTopic } from '../utils/Utils';
 
 
-export function MainPage(props: { rows: Record[], setRows: React.Dispatch<React.SetStateAction<Record[]>> }) {
+export function MainPage(props: { rows: Record[], setRows: (records:Record[])=>void }) {
   const allTypes = new Set(props.rows.map((row) => row.topic));
   const [selectedTypes, setSelectedTypes] = React.useState<string[]>(["Chest"]);
   return (
