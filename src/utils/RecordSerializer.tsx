@@ -1,6 +1,7 @@
-import { Movement, Record, UnitEnum } from "./utils/Interfaces";
-
 export class RecordSerializer {
+    static serialize(record: Record): string {
+        return `${record.date.toISOString().split("T")[0]} //${record.topic}`
+    }
     static deserialize(records: string): Record[] {
         return records.split("\n\n").map(record => this.parseRecord(record));
     }
@@ -25,4 +26,19 @@ export class RecordSerializer {
         // let [name, weight, ] = meta.split(":");
         return { name: res.slice(0, m.index), weight: Number(res.slice(m.index)), unit: Number(unit), reps: reps.map(rep => Number(rep)) };
     }
+}
+export class Record {
+    date: Date = new Date();
+    topic: string = "General";
+    movements: Movement[] = [];
+}
+export class Movement {
+    name: string = "";
+    weight: number = 0;
+    unit: UnitEnum = UnitEnum.Kg;
+    reps: number[] = [];
+}
+export enum UnitEnum {
+    Kg = 1,
+    Lb = 2
 }

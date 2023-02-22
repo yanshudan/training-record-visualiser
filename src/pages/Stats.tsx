@@ -11,7 +11,7 @@ import React from 'react';
 import { Area, AreaChart, Legend, Tooltip, XAxis } from 'recharts';
 import '../App.css';
 import { BottomNavBar, RecordList } from '../utils/Components';
-import { Record } from '../utils/Interfaces';
+import { Record } from '../utils/RecordSerializer';
 import { movementDefinitions, movementToPart } from '../utils/LoadFile';
 
 

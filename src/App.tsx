@@ -1,16 +1,15 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import './App.css';
 import { LoadTrainingRecords } from './utils/LoadFile';
-import { RecordSerializer } from './RecordSerializer';
+import { Record, RecordSerializer } from './utils/RecordSerializer';
 import { DetectTopic } from './utils/Utils';
 import { MainPage } from './pages/MainPage';
 import { CalendarPage } from './pages/Calender';
 import { StatsPage } from './pages/Stats';
 import React from 'react'
-import { Record } from "./utils/Interfaces";
 
 function App() {
-  const [rows,setRows] =React.useState<Record[]>( RecordSerializer.deserialize(LoadTrainingRecords())
+  const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(LoadTrainingRecords())
     .reverse()
     .map((record) => {
       return {

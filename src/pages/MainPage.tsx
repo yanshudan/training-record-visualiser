@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import React from 'react';
 import '../App.css';
 import { BottomNavBar, RecordList } from '../utils/Components';
-import { Record } from '../utils/Interfaces';
+import { Record } from '../utils/RecordSerializer';
 
 export function MainPage(props: { rows: Record[],setRows:React.Dispatch<React.SetStateAction<Record[]>> }) {
   const allTypes = new Set(props.rows.map((row) => row.topic));

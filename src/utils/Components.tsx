@@ -4,7 +4,6 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import '../App.css';
-import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
 import { Divider } from '@mui/material';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -15,6 +14,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Paper from '@mui/material/Paper';
 import '../App.css';
 import { TextField } from '@mui/material';
+import { Movement, Record } from './RecordSerializer';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -22,7 +22,9 @@ export function MovementComponent(props: Movement) {
   </Typography>)
 }
 
-export function Movements(props: IMovements) {
+export function Movements(props: {
+  movements: Movement[];
+}) {
   return <div>
     {
       props.movements.map((movement) => {
