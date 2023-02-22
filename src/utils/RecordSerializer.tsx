@@ -33,7 +33,7 @@ export class RecordSerializer {
             };
         }
         catch (e) {
-            console.log(`Invalid movement:${raw} Error:${e}`);
+            console.log(`Invalid movement:${raw} ${e}`);
             return undefined;
         }
         // let [name, weight, ] = meta.split(":");
