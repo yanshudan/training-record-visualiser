@@ -4,10 +4,8 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import './App.css';
-import { IMovements, IRecordList, Movement, Record } from './Interfaces';
-import { DetectTopic } from './Utils';
+import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
-
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }} color="text.secondary">
@@ -24,11 +22,16 @@ export function Movements(props: IMovements) {
   </div>
 };
 
-export function RecordList(props: IRecordList) {
+export function RecordList(props: {
+  records: Record[],
+  selectedTypes: string[]
+}) {
   return (<div>
-    {props.records.map((record) => {
+    {props.records.filter(
+      (record) => props.selectedTypes.includes(record.topic)
+    ).map((record) => {
       return (<div>
-        <Card sx={{ minWidth: 275 }} variant="outlined">
+        <Card sx={{ maxWidth: 300 }} variant="outlined">
           <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
               {record.date.getMonth() + "/" + record.date.getDate()}
@@ -39,6 +42,7 @@ export function RecordList(props: IRecordList) {
             <Movements movements={record.movements} />
           </CardContent>
           <CardActions>
+            <Button size="small">Edit</Button>
             <Button size="small">Duplicate</Button>
             <Button size="small">Delete</Button>
           </CardActions>

@@ -17,6 +17,3 @@ export enum UnitEnum {
 export interface IMovements {
     movements: Movement[];
 }
-export interface IRecordList {
-    records: Record[];
-}
