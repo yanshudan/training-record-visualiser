@@ -28,28 +28,23 @@ export function RecordList(props: IRecordList) {
   return (<div>
     {props.records.map((record) => {
       return (<div>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-          {record.date.getMonth() + "/" + record.date.getDate()}
-        </Typography>
-        <Typography variant="h5" component="div">
-          {record.topic === "General" ? DetectTopic(record.movements) : record.topic}
-        </Typography>
-        <Movements movements={record.movements} />
+        <Card sx={{ minWidth: 275 }} variant="outlined">
+          <CardContent>
+            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+              {record.date.getMonth() + "/" + record.date.getDate()}
+            </Typography>
+            <Typography variant="h5" component="div">
+              {record.topic}
+            </Typography>
+            <Movements movements={record.movements} />
+          </CardContent>
+          <CardActions>
+            <Button size="small">Duplicate</Button>
+            <Button size="small">Delete</Button>
+          </CardActions>
+        </Card>
       </div>)
     })}
   </div>)
 }
 
-
-export function RecordTable(rows: Record[]) {
-  return (
-    <Card sx={{ minWidth: 275 }}>
-      <CardContent>
-        <RecordList records={rows} />
-      </CardContent>
-      <CardActions>
-        <Button size="small">Duplicate</Button>
-        <Button size="small">Delete</Button>
-      </CardActions>
-    </Card>)
-};
