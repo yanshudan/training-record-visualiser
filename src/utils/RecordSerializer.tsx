@@ -1,3 +1,5 @@
+import { DetectTopic } from "./Utils";
+
 export class RecordSerializer {
     static serialize(record: Record): string {
         return `${record.date.toISOString().split("T")[0]}\n${record.movements.map(
@@ -11,22 +13,30 @@ export class RecordSerializer {
         let lines = record.split("\n");
         let date = new Date(lines[0].split("//")[0]);
         let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
-        return { date, movements, topic: "General" };
+        return { date, movements, topic: DetectTopic(movements) };
     }
-    static parseMovement(movement: string): Movement | undefined {
-        movement = movement.split("//")[0]
-        let [meta, ...reps] = movement.split(" ");
-        let unit = meta.slice(-2) === "kg" ? UnitEnum.kg : UnitEnum.lb;
-        let regex = /[0-9./]/;
-
-        const res = meta.slice(0, -2)
-        const m = res.match(regex);
-        if (m === null) {
-            console.log(`Invalid movement:${movement} match:${m}`);
+    static parseMovement(raw: string): Movement | undefined {
+        try {
+            const movement = (raw.indexOf("//") == -1) ? raw.split(" ") : raw.split("//")[0].split(" ");
+            if (movement.length < 3) { 
+                throw new Error("Empty movement");
+            }
+            let [name, weightWithUnit, ...reps] = movement;
+            let unit = weightWithUnit.slice(-2) === "kg" ? UnitEnum.kg : UnitEnum.lb;
+            return {
+                name, weight: Number(weightWithUnit.slice(0, -2)), unit, reps: reps.filter(r=>r!=="").map(rep => {
+                    if (rep.indexOf("/") !== -1) {
+                        throw new Error("Fractional reps not supported");
+                    }
+                    return Number(rep)
+                })
+            };
+        }
+        catch (e) {
+            console.log(`Invalid movement:${raw} Error:${e}`);
             return undefined;
         }
         // let [name, weight, ] = meta.split(":");
-        return { name: res.slice(0, m.index), weight: Number(res.slice(m.index)), unit: Number(unit), reps: reps.map(rep => Number(rep)) };
     }
 }
 export class Record {

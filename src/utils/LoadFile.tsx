@@ -1,10 +1,8 @@
 export function LoadTrainingRecords(fileName = "../record.txt") {
     // content=fetch(fileName).then(response => response.text());
     //   getRawContent().then(content => {
-    //     console.log(content);
     //     return content;
     //   }, reason => {
-    //     console.log(reason);
     //     return reason;
     //   });
     return `8.29

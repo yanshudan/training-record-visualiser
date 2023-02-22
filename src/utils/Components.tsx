@@ -46,12 +46,15 @@ export function RecordList(props: {
         <EditableCard
           record={record}
           onDelete={() => { props.setRecords(props.records.filter((r) => r !== record)) }}
-          onDuplicate={() => { props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements }, ...props.records,]) }} />
+          onDuplicate={() => { props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements }, ...props.records,]) }}
+          onUpdate={(newRecord: Record) => {
+            props.setRecords(props.records.map((r) => { return r === record ? newRecord : r }))
+          }}/>
       </div>)
     })}
   </div>)
 }
-export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void }) {
+export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void,onUpdate: (record: Record) => void }) {
   const [showEditor, setShowEditor] = React.useState(false);
   const [value, setValue] = React.useState("");
   return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
@@ -72,7 +75,12 @@ export function EditableCard(props: { record: Record, onDelete: () => void, onDu
         if (showEditor) {
           //Confirm changes
           //TODO update new record to global state
-          console.log(value)
+          try {
+            const newRecord = RecordSerializer.deserialize(value)[0]
+            props.onUpdate(newRecord);
+          }catch(e){
+            alert(`Invalid input ${e}`)
+          }
         }
         setShowEditor(!showEditor)
       }}>{showEditor ? "Confirm" : "Edit"}</Button>
