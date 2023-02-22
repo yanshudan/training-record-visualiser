@@ -1,33 +1,23 @@
+import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import './App.css';
-import { LoadTrainingRecords } from './utils/LoadFile';
-import { Record, RecordSerializer } from './utils/RecordSerializer';
-import { DetectTopic } from './utils/Utils';
-import { MainPage } from './pages/MainPage';
 import { CalendarPage } from './pages/Calender';
+import { MainPage } from './pages/MainPage';
 import { StatsPage } from './pages/Stats';
-import React from 'react'
+import { Record } from './utils/RecordSerializer';
+import { BottomNavBar } from './utils/Components';
 
 function App() {
-  const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(LoadTrainingRecords())
-    .reverse()
-    .map((record) => {
-      return {
-        date: record.date,
-        topic: DetectTopic(record.movements) as string,
-        movements: record.movements
-      }
-    }))
-
-  return (
-    <Router>
-      <Routes>
-        <Route path="/stat" element={<StatsPage rows={rows} />} />
-        <Route path="/calendar" element={<CalendarPage rows={rows} />} />
-        <Route path="/" element={<MainPage rows={rows} setRows={setRows} />} />
-      </Routes>
-    </Router>
-  )
+  const [rows, setRows] = React.useState<Record[]>([])
+  const [section, setSection] = React.useState(0)
+  return <div>
+    {
+      section === 0 ? <MainPage rows={rows} setRows={setRows} /> :
+        section === 1 ?
+          <CalendarPage rows={rows} /> :
+          <StatsPage rows={rows} />
+    }
+    <BottomNavBar selection={section} setSection={setSection} /></div>
 }
 
 

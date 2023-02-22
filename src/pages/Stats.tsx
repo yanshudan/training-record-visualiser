@@ -79,7 +79,7 @@ export function StatsPage(props: { rows: Record[] }) {
             </linearGradient>
           </defs>
         </AreaChart> :
-        <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }}/>}
+        <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} />}
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
@@ -91,7 +91,6 @@ export function StatsPage(props: { rows: Record[] }) {
         </ToggleButton>
       </ToggleButtonGroup>
     </Paper>
-    <BottomNavBar selection={2} />
   </ThemeProvider>)
 }
 

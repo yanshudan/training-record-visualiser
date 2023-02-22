@@ -49,12 +49,12 @@ export function RecordList(props: {
           onDuplicate={() => { props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements }, ...props.records,]) }}
           onUpdate={(newRecord: Record) => {
             props.setRecords(props.records.map((r) => { return r === record ? newRecord : r }))
-          }}/>
+          }} />
       </div>)
     })}
   </div>)
 }
-export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void,onUpdate: (record: Record) => void }) {
+export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void, onUpdate: (record: Record) => void }) {
   const [showEditor, setShowEditor] = React.useState(false);
   const [value, setValue] = React.useState("");
   return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
@@ -78,7 +78,7 @@ export function EditableCard(props: { record: Record, onDelete: () => void, onDu
           try {
             const newRecord = RecordSerializer.deserialize(value)[0]
             props.onUpdate(newRecord);
-          }catch(e){
+          } catch (e) {
             alert(`Invalid input ${e}`)
           }
         }
@@ -89,12 +89,12 @@ export function EditableCard(props: { record: Record, onDelete: () => void, onDu
     </CardActions>
   </Card>
 }
-export function BottomNavBar(props: { selection: number }) {
+export function BottomNavBar(props: { selection: number, setSection: React.Dispatch<React.SetStateAction<number>> }) {
   return (<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
     <BottomNavigation showLabels value={props.selection} >
-      <BottomNavigationAction href="/" label="Records" icon={<FormatListBulletedIcon />} />
-      <BottomNavigationAction href="/calendar" label="Calendar" icon={<CalendarMonthIcon />} />
-      <BottomNavigationAction href="/stat" label="Statistics" icon={<SsidChartIcon />} />
+      <BottomNavigationAction onClick={() => props.setSection(0)} label="Records" icon={<FormatListBulletedIcon />} />
+      <BottomNavigationAction onClick={() => props.setSection(1)} label="Calendar" icon={<CalendarMonthIcon />} />
+      <BottomNavigationAction onClick={() => props.setSection(2)} label="Statistics" icon={<SsidChartIcon />} />
     </BottomNavigation>
   </Paper>)
 }

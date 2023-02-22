@@ -8,6 +8,5 @@ export function CalendarPage(props: { rows: Record[] }) {
   return (
     <ThemeProvider theme={createTheme({ palette: { mode: "dark" } })}>
       This page is under construction
-      <BottomNavBar selection={1} />
     </ThemeProvider>)
 }
