@@ -4,7 +4,7 @@ import SsidChartIcon from '@mui/icons-material/SsidChart';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Paper from '@mui/material/Paper';
-import { Record } from '../Interfaces';
+import { Record } from '../utils/Interfaces';
 import '../App.css';
 import React from 'react'
 

@@ -1,8 +1,8 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import './App.css';
-import { LoadTrainingRecords } from './LoadFile';
+import { LoadTrainingRecords } from './utils/LoadFile';
 import { RecordSerializer } from './RecordSerializer';
-import { DetectTopic } from './Utils';
+import { DetectTopic } from './utils/Utils';
 import { MainPage } from './pages/MainPage';
 import { CalendarPage } from './pages/Calender';
 import { StatsPage } from './pages/Stats';

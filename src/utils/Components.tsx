@@ -3,7 +3,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import './App.css';
+import '../App.css';
 import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
 import { Divider } from '@mui/material';
@@ -33,16 +33,16 @@ export function RecordList(props: {
     ).map((record) => {
       return (<div>
         <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
-          <CardContent sx={{"padding-bottom":"0px"}}>
+          <CardContent sx={{ "padding-bottom": "0px" }}>
             <Typography variant="h5" component="div" display="inline-block">
               {record.topic}
             </Typography>
-            <Typography sx={{ fontSize: 14,"padding-left":"8px" }} color="text.secondary" display="inline-block" gutterBottom>
+            <Typography sx={{ fontSize: 14, "padding-left": "8px" }} color="text.secondary" display="inline-block" gutterBottom>
               {record.date.getMonth() + "/" + record.date.getDate()}
             </Typography>
             <Movements movements={record.movements} />
           </CardContent>
-          <Divider/>
+          <Divider />
           <CardActions>
             <Button size="small">Edit</Button>
             <Button size="small">Duplicate</Button>

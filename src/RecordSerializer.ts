@@ -1,4 +1,4 @@
-import { Movement, Record, UnitEnum } from "./Interfaces";
+import { Movement, Record, UnitEnum } from "./utils/Interfaces";
 
 export class RecordSerializer {
     static deserialize(records: string): Record[] {

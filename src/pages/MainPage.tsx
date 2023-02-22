@@ -10,8 +10,8 @@ import Paper from '@mui/material/Paper';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 import { ThemeProvider } from '@emotion/react';
 import { createTheme } from '@mui/material';
-import { Record } from '../Interfaces';
-import { RecordList } from '../Components';
+import { Record } from '../utils/Interfaces';
+import { RecordList } from '../utils/Components';
 
 export function MainPage(props: { rows: Record[] }) {
     const allTypes = new Set(props.rows.map((row) => row.topic));
