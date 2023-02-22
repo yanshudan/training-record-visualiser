@@ -1,23 +1,29 @@
 import { ThemeProvider } from '@emotion/react';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import SsidChartIcon from '@mui/icons-material/SsidChart';
 import { createTheme } from '@mui/material';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
-import { Record } from '../utils/Interfaces';
+import Stack from '@mui/material/Stack';
+import React from 'react';
 import '../App.css';
-import React from 'react'
+import { BottomNavBar } from '../utils/Components';
+import { Record } from '../utils/Interfaces';
 
 export function StatsPage(props: { rows: Record[] }) {
+  const allTypes = new Set(props.rows.map((row) => row.topic));
+  const [selectedType, setSelectedType] = React.useState<string>("Chest");
 
-    return (<ThemeProvider theme={createTheme({ palette: { mode: "dark" } })} >STATS<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
-
-        <BottomNavigation showLabels value={2} >
-            <BottomNavigationAction href="/" label="Records" icon={<FormatListBulletedIcon />} />
-            <BottomNavigationAction href="/calendar" label="Calendar" icon={<CalendarMonthIcon />} />
-            <BottomNavigationAction href="/stat" label="Statistics" icon={<SsidChartIcon />} />
-        </BottomNavigation>
-    </Paper></ThemeProvider>)
+  return (<ThemeProvider theme={createTheme({ palette: { mode: "dark" } })} >
+    <Paper>
+      <Stack direction="row" spacing={1} >
+        <div>{
+          Array.from(allTypes.values()).map((type) => {
+            return <Chip label={type} onClick={() => {
+                setSelectedType(type)
+            }} color={selectedType===type ? "success" : "info"} />
+          })}
+        </div>
+      </Stack>
+    </Paper>
+    <BottomNavBar selection={2}/>
+  </ThemeProvider>)
 }

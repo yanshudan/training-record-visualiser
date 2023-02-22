@@ -7,6 +7,13 @@ import '../App.css';
 import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
 import { Divider } from '@mui/material';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import SsidChartIcon from '@mui/icons-material/SsidChart';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import Paper from '@mui/material/Paper';
+import '../App.css';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -54,3 +61,12 @@ export function RecordList(props: {
   </div>)
 }
 
+export function BottomNavBar(props: { selection: number }) {
+  return (<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+    <BottomNavigation showLabels value={props.selection} >
+      <BottomNavigationAction href="/" label="Records" icon={<FormatListBulletedIcon />} />
+      <BottomNavigationAction href="/calendar" label="Calendar" icon={<CalendarMonthIcon />} />
+      <BottomNavigationAction href="/stat" label="Statistics" icon={<SsidChartIcon />} />
+    </BottomNavigation>
+  </Paper>)
+}
