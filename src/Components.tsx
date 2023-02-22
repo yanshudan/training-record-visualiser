@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import './App.css';
 import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
+import { Divider } from '@mui/material';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -41,7 +42,8 @@ export function RecordList(props: {
             </Typography>
             <Movements movements={record.movements} />
           </CardContent>
-          <CardActions sx={{"padding-top":"0px"}}>
+          <Divider/>
+          <CardActions>
             <Button size="small">Edit</Button>
             <Button size="small">Duplicate</Button>
             <Button size="small">Delete</Button>
