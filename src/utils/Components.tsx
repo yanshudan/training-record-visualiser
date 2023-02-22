@@ -14,6 +14,7 @@ import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Paper from '@mui/material/Paper';
 import '../App.css';
+import { TextField } from '@mui/material';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -40,32 +41,44 @@ export function RecordList(props: {
       (record) => props.selectedTypes.includes(record.topic) && record.movements.length > 0
     ).map((record) => {
       return (<div>
-        <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
-          <CardContent sx={{ "padding-bottom": "0px" }}>
-            <Typography variant="h5" component="div" display="inline-block">
-              {record.topic}
-            </Typography>
-            <Typography sx={{ fontSize: 14, "padding-left": "8px" }} color="text.secondary" display="inline-block" gutterBottom>
-              {record.date.getMonth() + 1 + "/" + record.date.getDate()}
-            </Typography>
-            <Movements movements={record.movements} />
-          </CardContent>
-          <Divider />
-          <CardActions>
-            <Button size="small">Edit</Button>
-            <Button size="small" onClick={() => {
-              props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements },...props.records, ])
-            }}>Duplicate</Button>
-            <Button size="small" onClick={() => {
-              props.setRecords(props.records.filter((r) => r !== record))
-            }}>Delete</Button>
-          </CardActions>
-        </Card>
+        <EditableCard
+          record={record}
+          onDelete={() => { props.setRecords(props.records.filter((r) => r !== record)) }}
+          onDuplicate={() => { props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements }, ...props.records,]) }} />
       </div>)
     })}
   </div>)
 }
-
+export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void }) {
+  const [showEditor, setShowEditor] = React.useState(false);
+  const [value, setValue] = React.useState("");
+  return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
+    {showEditor ?
+      <TextField defaultValue={JSON.stringify(props.record)} multiline fullWidth onChange={(newVal) => { setValue(newVal.target.value) }} /> :
+      <CardContent sx={{ "padding-bottom": "0px" }}>
+        <Typography variant="h5" component="div" display="inline-block">
+          {props.record.topic}
+        </Typography>
+        <Typography sx={{ fontSize: 14, "padding-left": "8px" }} color="text.secondary" display="inline-block" gutterBottom>
+          {props.record.date.getMonth() + 1 + "/" + props.record.date.getDate()}
+        </Typography>
+        <Movements movements={props.record.movements} />
+      </CardContent>}
+    <Divider />
+    <CardActions>
+      <Button size="small" onClick={() => {
+        if (showEditor) {
+          //Confirm changes
+          //TODO update new record to global state
+          console.log(value)
+        }
+        setShowEditor(!showEditor)
+      }}>{showEditor ? "Confirm" : "Edit"}</Button>
+      <Button size="small" onClick={props.onDuplicate} disabled={showEditor}>Duplicate</Button>
+      <Button size="small" onClick={props.onDelete} disabled={showEditor}>Delete</Button>
+    </CardActions>
+  </Card>
+}
 export function BottomNavBar(props: { selection: number }) {
   return (<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
     <BottomNavigation showLabels value={props.selection} >
