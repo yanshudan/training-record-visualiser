@@ -10,9 +10,9 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import { Area, AreaChart, Legend, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { BottomNavBar, RecordList } from '../utils/Components';
-import { Record } from '../utils/RecordSerializer';
+import { RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/LoadFile';
+import { Record } from '../utils/RecordSerializer';
 
 
 export function StatsPage(props: { rows: Record[] }) {
@@ -23,7 +23,7 @@ export function StatsPage(props: { rows: Record[] }) {
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
 
-  return (<ThemeProvider theme={createTheme({ palette: { mode: "dark" } })} >
+  return (<Paper>
     <Paper>
       <Stack direction="row" spacing={1} >
         <div>{
@@ -91,7 +91,7 @@ export function StatsPage(props: { rows: Record[] }) {
         </ToggleButton>
       </ToggleButtonGroup>
     </Paper>
-  </ThemeProvider>)
+  </Paper>)
 }
 
 function filterRows(rows: Record[], selectedType: string, selectedMovements: string[]) {
