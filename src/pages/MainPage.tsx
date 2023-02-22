@@ -30,7 +30,7 @@ export function MainPage(props: { rows: Record[] }) {
         selectedTypes.length === 0 ? "Select a type" :
           <RecordList records={props.rows} selectedTypes={selectedTypes} />
       }
-      <BottomNavBar selection={0}/>
     </Paper>
+    <BottomNavBar selection={0} />
   </ThemeProvider>)
 }

@@ -410,12 +410,10 @@ FacePull15kg 15 14 11 11
 }
 
 
-const movementDefinitions = [
-    { part: "Leg", movements: ["squat", "深蹲"] },
+export const movementDefinitions = [
     {
         part: "Shoulder", movements: [
             "FacePull",
-            "飞鸟",
             "侧平举",
             "推举"
         ]
@@ -424,6 +422,7 @@ const movementDefinitions = [
         part: "Chest", movements: [
             "上斜卧推",
             "卧推",
+            "飞鸟",
             "哑铃飞鸟",
             "平板哑铃",
             "平板飞鸟"

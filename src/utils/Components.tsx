@@ -36,7 +36,7 @@ export function RecordList(props: {
 }) {
   return (<div>
     {props.records.filter(
-      (record) => props.selectedTypes.includes(record.topic)
+      (record) => props.selectedTypes.includes(record.topic) && record.movements.length > 0
     ).map((record) => {
       return (<div>
         <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
