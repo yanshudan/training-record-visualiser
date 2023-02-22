@@ -1,7 +1,5 @@
-import { ThemeProvider } from '@emotion/react';
 import DownloadIcon from '@mui/icons-material/Download';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { createTheme } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -61,7 +59,14 @@ export function MainPage(props: { rows: Record[], setRows: React.Dispatch<React.
             }} />
             <FileUploadIcon />
           </ToggleButton>
-          <ToggleButton value="center" >
+          <ToggleButton value="center" onClick={() => {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([props.rows.map(row=>RecordSerializer.serialize(row)).join("\n\n")], { type: "text/plain" }));
+            a.setAttribute("download", `records-${new Date().toISOString()}.txt`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }}>
             <DownloadIcon />
           </ToggleButton>
         </ToggleButtonGroup>
