@@ -7,9 +7,10 @@ import { MainPage } from './pages/MainPage';
 import { StatsPage } from './pages/Stats';
 import { BottomNavBar } from './utils/Components';
 import { Record, RecordSerializer } from './utils/RecordSerializer';
+import { sampleRecordsRaw } from './utils/LoadFile';
 
 function App() {
-  const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || ""));
+  const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || sampleRecordsRaw).reverse());
   const [section, setSection] = React.useState(0);
   const setRowsAndStorage = (newRows: Record[]) => { 
     setRows(newRows)
