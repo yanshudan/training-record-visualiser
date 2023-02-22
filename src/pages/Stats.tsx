@@ -1,18 +1,18 @@
 import { ThemeProvider } from '@emotion/react';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import PaymentIcon from '@mui/icons-material/Payment';
 import { createTheme } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
+import { Area, AreaChart, Legend, Tooltip, XAxis } from 'recharts';
 import '../App.css';
 import { BottomNavBar, RecordList } from '../utils/Components';
 import { Record } from '../utils/Interfaces';
 import { movementDefinitions, movementToPart } from '../utils/LoadFile';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import PaymentIcon from '@mui/icons-material/Payment';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 
 export function StatsPage(props: { rows: Record[] }) {
@@ -53,7 +53,7 @@ export function StatsPage(props: { rows: Record[] }) {
         }</div>
       </Stack>
       {isRenderGraph ?
-        <LineChart width={400} height={400} data={filteredRows
+        <AreaChart width={400} height={400} data={filteredRows
           .filter(row => row.movements.length > 0 && row.date > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 3))
           .reverse()
           .map(row => {
@@ -66,10 +66,20 @@ export function StatsPage(props: { rows: Record[] }) {
           <Tooltip />
           <XAxis dataKey="date" scale="time" />
           <Legend />
-          <Line type="monotone" dataKey="weight" stroke="#8884d8" />
-          <Line type="monotone" dataKey="amount" stroke="#8cc4d8" />
-        </LineChart> :
-        <RecordList records={filteredRows} selectedTypes={allTypes} />}
+          <Area type="monotone" dataKey="weight" stroke="#2ac2d2" fill="url(#colorUv)" />
+          <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
+          <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+        </AreaChart> :
+        <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }}/>}
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >

@@ -7,9 +7,10 @@ import { MainPage } from './pages/MainPage';
 import { CalendarPage } from './pages/Calender';
 import { StatsPage } from './pages/Stats';
 import React from 'react'
+import { Record } from "./utils/Interfaces";
 
 function App() {
-  const rows = RecordSerializer.deserialize(LoadTrainingRecords())
+  const [rows,setRows] =React.useState<Record[]>( RecordSerializer.deserialize(LoadTrainingRecords())
     .reverse()
     .map((record) => {
       return {
@@ -17,14 +18,14 @@ function App() {
         topic: DetectTopic(record.movements) as string,
         movements: record.movements
       }
-    })
+    }))
 
   return (
     <Router>
       <Routes>
         <Route path="/stat" element={<StatsPage rows={rows} />} />
         <Route path="/calendar" element={<CalendarPage rows={rows} />} />
-        <Route path="/" element={<MainPage rows={rows} />} />
+        <Route path="/" element={<MainPage rows={rows} setRows={setRows} />} />
       </Routes>
     </Router>
   )

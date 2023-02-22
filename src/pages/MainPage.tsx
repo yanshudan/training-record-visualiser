@@ -8,7 +8,7 @@ import '../App.css';
 import { BottomNavBar, RecordList } from '../utils/Components';
 import { Record } from '../utils/Interfaces';
 
-export function MainPage(props: { rows: Record[] }) {
+export function MainPage(props: { rows: Record[],setRows:React.Dispatch<React.SetStateAction<Record[]>> }) {
   const allTypes = new Set(props.rows.map((row) => row.topic));
   const [selectedTypes, setSelectedTypes] = React.useState<string[]>(["Chest"]);
   return (<ThemeProvider theme={createTheme({ palette: { mode: "dark" } })}>
@@ -28,7 +28,7 @@ export function MainPage(props: { rows: Record[] }) {
       </Stack>
       {
         selectedTypes.length === 0 ? "Select a type" :
-          <RecordList records={props.rows} selectedTypes={selectedTypes} />
+          <RecordList records={props.rows} selectedTypes={selectedTypes} setRecords={props.setRows} />
       }
     </Paper>
     <BottomNavBar selection={0} />

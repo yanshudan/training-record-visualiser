@@ -32,6 +32,7 @@ export function Movements(props: IMovements) {
 
 export function RecordList(props: {
   records: Record[],
+  setRecords: React.Dispatch<React.SetStateAction<Record[]>>,
   selectedTypes: string[]
 }) {
   return (<div>
@@ -52,8 +53,12 @@ export function RecordList(props: {
           <Divider />
           <CardActions>
             <Button size="small">Edit</Button>
-            <Button size="small">Duplicate</Button>
-            <Button size="small">Delete</Button>
+            <Button size="small" onClick={() => {
+              props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements },...props.records, ])
+            }}>Duplicate</Button>
+            <Button size="small" onClick={() => {
+              props.setRecords(props.records.filter((r) => r !== record))
+            }}>Delete</Button>
           </CardActions>
         </Card>
       </div>)
