@@ -14,7 +14,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Paper from '@mui/material/Paper';
 import '../App.css';
 import { TextField } from '@mui/material';
-import { Movement, Record } from './RecordSerializer';
+import { Movement, Record, RecordSerializer } from './RecordSerializer';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -56,7 +56,7 @@ export function EditableCard(props: { record: Record, onDelete: () => void, onDu
   const [value, setValue] = React.useState("");
   return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
     {showEditor ?
-      <TextField defaultValue={JSON.stringify(props.record)} multiline fullWidth onChange={(newVal) => { setValue(newVal.target.value) }} /> :
+      <TextField defaultValue={RecordSerializer.serialize(props.record)} multiline fullWidth onChange={(newVal) => { setValue(newVal.target.value) }} /> :
       <CardContent sx={{ "padding-bottom": "0px" }}>
         <Typography variant="h5" component="div" display="inline-block">
           {props.record.topic}

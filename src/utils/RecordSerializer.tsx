@@ -1,6 +1,8 @@
 export class RecordSerializer {
     static serialize(record: Record): string {
-        return `${record.date.toISOString().split("T")[0]} //${record.topic}`
+        return `${record.date.toISOString().split("T")[0]}\n${record.movements.map(
+            movement => `${movement.name} ${movement.weight}${UnitEnum[movement.unit]} ${movement.reps.join(" ")}`
+        ).join("\n")}`;
     }
     static deserialize(records: string): Record[] {
         return records.split("\n\n").map(record => this.parseRecord(record));
@@ -14,7 +16,7 @@ export class RecordSerializer {
     static parseMovement(movement: string): Movement | undefined {
         movement = movement.split("//")[0]
         let [meta, ...reps] = movement.split(" ");
-        let unit = meta.slice(-2) === "kg" ? UnitEnum.Kg : UnitEnum.Lb;
+        let unit = meta.slice(-2) === "kg" ? UnitEnum.kg : UnitEnum.lb;
         let regex = /[0-9./]/;
 
         const res = meta.slice(0, -2)
@@ -35,10 +37,10 @@ export class Record {
 export class Movement {
     name: string = "";
     weight: number = 0;
-    unit: UnitEnum = UnitEnum.Kg;
+    unit: UnitEnum = UnitEnum.kg;
     reps: number[] = [];
 }
 export enum UnitEnum {
-    Kg = 1,
-    Lb = 2
+    kg = 1,
+    lb = 2
 }

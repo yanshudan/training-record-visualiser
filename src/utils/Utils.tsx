@@ -1,5 +1,5 @@
-import { Movement } from "./Interfaces";
 import { movementToPart } from "./LoadFile";
+import { Movement } from "./RecordSerializer";
 
 export function DetectTopic(movements: Movement[]) {
     const parts = movements.map((movement) => movementToPart.get(movement.name)).filter((part) => part !== "Shoulder");
