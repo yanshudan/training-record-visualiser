@@ -8,19 +8,20 @@ import '../App.css';
 import { BottomNavBar, RecordList } from '../utils/Components';
 import { Record } from '../utils/Interfaces';
 import { movementDefinitions, movementToPart } from '../utils/LoadFile';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import PaymentIcon from '@mui/icons-material/Payment';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import { Divider } from '@mui/material';
+
 
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
+  const [isRenderGraph, setRenderGraph] = React.useState<boolean>(false);
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
-  const [filteredRows, setFilteredRows] = React.useState<Record[]>(props.rows.map(
-    (row) => {
-      return {
-        date: row.date,
-        movements: row.movements.filter((movement) => movementToPart.get(movement.name) === selectedType),
-        topic: row.topic
-    }}
-  ));
+  const [selectedMovements, setSelectedMovements] = React.useState<string[]>([]);
+  const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
 
   return (<ThemeProvider theme={createTheme({ palette: { mode: "dark" } })} >
     <Paper>
@@ -29,21 +30,52 @@ export function StatsPage(props: { rows: Record[] }) {
           allTypes.map((type) => {
             return <Chip label={type} onClick={() => {
               setSelectedType(type);
-              setFilteredRows(props.rows.map(
-                (row) => {
-                  return {
-                    date: row.date,
-                    movements: row.movements.filter((movement) => movementToPart.get(movement.name) === type),
-                    topic: row.topic
-                
-                  }
-                }))
-              }} color={selectedType===type ? "success" : "info"} />
+              setSelectedMovements([]);
+              setFilteredRows(filterRows(props.rows, type, selectedMovements));
+            }} color={selectedType === type ? "success" : "info"} />
           })}
         </div>
       </Stack>
-      <RecordList records={filteredRows} selectedTypes={allTypes} />
+      <Stack sx={{"margin-top":"10px"}}>
+        <div>{
+          movementDefinitions.filter((definition) => definition.part === selectedType)[0].movements.map((name) => {
+            return <Chip label={name} onClick={() => {
+              let newMovements;
+              if (selectedMovements.includes(name)) {
+                newMovements = selectedMovements.filter((movement) => movement !== name);
+              } else {
+                newMovements = [...selectedMovements, name];
+              }
+              setSelectedMovements(newMovements);
+              setFilteredRows(filterRows(props.rows, selectedType, newMovements))
+            }} color={selectedMovements.includes(name) ? "success" : "info"} />
+          })
+        }</div>
+      </Stack>
+      {isRenderGraph?<p>dfs</p>:<RecordList records={filteredRows} selectedTypes={allTypes} />}
     </Paper>
-    <BottomNavBar selection={2}/>
+    <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
+      <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
+        <ToggleButton value="left" selected={isRenderGraph} onClick={() => setRenderGraph(!isRenderGraph)}>
+          <AutoGraphIcon />
+        </ToggleButton>
+        <ToggleButton value="center" selected={!isRenderGraph} onClick={() => setRenderGraph(!isRenderGraph)}>
+          <PaymentIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </Paper>
+    <BottomNavBar selection={2} />
   </ThemeProvider>)
+}
+
+function filterRows(rows:Record[],selectedType:string,selectedMovements:string[]){
+  return rows.map(
+    (row) => {
+      return {
+        date: row.date,
+        movements: row.movements.filter((movement) => movementToPart.get(movement.name) === selectedType && (selectedMovements.includes(movement.name))),
+        topic: row.topic
+      }
+    }
+  )
 }
