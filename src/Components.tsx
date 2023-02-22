@@ -8,7 +8,7 @@ import { IMovements, Movement, Record } from './Interfaces';
 import React from 'react'
 
 export function MovementComponent(props: Movement) {
-  return (<Typography sx={{ mb: 1.5 }} color="white">
+  return (<Typography sx={{ mb: 1.5 }}>
     {props.name + " " + props.weight + "kg " + props.reps.join(" ")}
   </Typography>)
 }
@@ -31,17 +31,17 @@ export function RecordList(props: {
       (record) => props.selectedTypes.includes(record.topic)
     ).map((record) => {
       return (<div>
-        <Card sx={{ color: "white", background: "rgb(50, 50, 50)" ,"border-radius":"10px","margin-bottom":"1px"}} variant="outlined">
-          <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="rgba(255, 255, 255, 0.7)" gutterBottom>
-              {record.date.getMonth() + "/" + record.date.getDate()}
-            </Typography>
-            <Typography variant="h5" component="div">
+        <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
+          <CardContent sx={{"padding-bottom":"0px"}}>
+            <Typography variant="h5" component="div" display="inline-block">
               {record.topic}
+            </Typography>
+            <Typography sx={{ fontSize: 14,"padding-left":"8px" }} color="text.secondary" display="inline-block" gutterBottom>
+              {record.date.getMonth() + "/" + record.date.getDate()}
             </Typography>
             <Movements movements={record.movements} />
           </CardContent>
-          <CardActions>
+          <CardActions sx={{"padding-top":"0px"}}>
             <Button size="small">Edit</Button>
             <Button size="small">Duplicate</Button>
             <Button size="small">Delete</Button>
