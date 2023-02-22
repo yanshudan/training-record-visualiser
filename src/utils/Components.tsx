@@ -45,7 +45,7 @@ export function RecordList(props: {
               {record.topic}
             </Typography>
             <Typography sx={{ fontSize: 14, "padding-left": "8px" }} color="text.secondary" display="inline-block" gutterBottom>
-              {record.date.getMonth() + "/" + record.date.getDate()}
+              {record.date.getMonth() + 1 + "/" + record.date.getDate()}
             </Typography>
             <Movements movements={record.movements} />
           </CardContent>

@@ -12,15 +12,15 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import PaymentIcon from '@mui/icons-material/Payment';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import { Divider } from '@mui/material';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
-  const [isRenderGraph, setRenderGraph] = React.useState<boolean>(false);
+  const [isRenderGraph, setRenderGraph] = React.useState<boolean>(true);
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
-  const [selectedMovements, setSelectedMovements] = React.useState<string[]>([]);
+  const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
 
   return (<ThemeProvider theme={createTheme({ palette: { mode: "dark" } })} >
@@ -36,7 +36,7 @@ export function StatsPage(props: { rows: Record[] }) {
           })}
         </div>
       </Stack>
-      <Stack sx={{"margin-top":"10px"}}>
+      <Stack sx={{ "margin-top": "10px" }}>
         <div>{
           movementDefinitions.filter((definition) => definition.part === selectedType)[0].movements.map((name) => {
             return <Chip label={name} onClick={() => {
@@ -52,7 +52,24 @@ export function StatsPage(props: { rows: Record[] }) {
           })
         }</div>
       </Stack>
-      {isRenderGraph?<p>dfs</p>:<RecordList records={filteredRows} selectedTypes={allTypes} />}
+      {isRenderGraph ?
+        <LineChart width={400} height={400} data={filteredRows
+          .filter(row => row.movements.length > 0 && row.date > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 3))
+          .reverse()
+          .map(row => {
+            return {
+              date: row.date,
+              weight: row.movements[0].weight,
+              amount: row.movements[0].weight * row.movements[0].reps.reduce((a, b) => a + b, 0) / 50
+            }
+          })}>
+          <Tooltip />
+          <XAxis dataKey="date" scale="time" />
+          <Legend />
+          <Line type="monotone" dataKey="weight" stroke="#8884d8" />
+          <Line type="monotone" dataKey="amount" stroke="#8cc4d8" />
+        </LineChart> :
+        <RecordList records={filteredRows} selectedTypes={allTypes} />}
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
@@ -68,7 +85,7 @@ export function StatsPage(props: { rows: Record[] }) {
   </ThemeProvider>)
 }
 
-function filterRows(rows:Record[],selectedType:string,selectedMovements:string[]){
+function filterRows(rows: Record[], selectedType: string, selectedMovements: string[]) {
   return rows.map(
     (row) => {
       return {
