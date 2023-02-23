@@ -14,7 +14,8 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Paper from '@mui/material/Paper';
 import '../App.css';
 import { TextField } from '@mui/material';
-import { Movement, Record, RecordSerializer } from './RecordSerializer';
+import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
+import { movementDefinitions } from './LoadFile';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -52,6 +53,24 @@ export function RecordList(props: {
           }} />
       </div>)
     })}
+    <Card sx={{ "border-radius": "10px", "margin-bottom": "1px", height: "200px" }} variant="outlined">
+      <CardContent sx={{ "padding-bottom": "0px" }}>
+        <Typography variant="h5" component="div" display="inline-block" onClick={() => {
+          const defaultType = movementDefinitions.find(val => val.part === props.selectedTypes[0]);
+          props.setRecords([{
+            date: new Date(), topic: defaultType === undefined ? "General" : defaultType.part, movements: [{
+              name: props.selectedTypes.length === 0 || defaultType === undefined ? "深蹲" : defaultType.movements[0],
+              weight: 20,
+              reps: [10, 10, 10],
+              unit: UnitEnum.kg
+            }]
+          }, ...props.records,])
+        }}>
+          {"Create a new record"}<br />
+          {"from template"}
+        </Typography>
+      </CardContent>
+    </Card>
   </div>)
 }
 export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void, onUpdate: (record: Record) => void }) {

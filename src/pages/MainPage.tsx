@@ -10,11 +10,17 @@ import '../App.css';
 import { RecordList } from '../utils/Components';
 import { Record, RecordSerializer } from '../utils/RecordSerializer';
 import { DetectTopic } from '../utils/Utils';
+import Alert from '@mui/material/Alert';
 
-
-export function MainPage(props: { rows: Record[], setRows: (records:Record[])=>void }) {
-  const allTypes = new Set(props.rows.map((row) => row.topic));
+export function MainPage(props: { rows: Record[], setRows: (records: Record[]) => void }) {
+  const [allTypes, setAllTypes] = React.useState<Set<string>>(new Set());
   const [selectedTypes, setSelectedTypes] = React.useState<string[]>(["Chest"]);
+  React.useEffect(() => {
+    const newAllTypes = new Set(props.rows.map((row) => row.topic));
+    setAllTypes(newAllTypes)
+    setSelectedTypes(selectedTypes.filter((selectedType) => newAllTypes.has(selectedType)))
+  }, [props.rows])
+
   return (
     <Paper>
       <Paper>
@@ -31,10 +37,8 @@ export function MainPage(props: { rows: Record[], setRows: (records:Record[])=>v
             })}
           </div>
         </Stack>
-        {
-          selectedTypes.length === 0 ? "Select a type" :
-            <RecordList records={props.rows} selectedTypes={selectedTypes} setRecords={props.setRows} />
-        }
+        {selectedTypes.length === 0 ? <Alert severity="warning">Please select a record type!</Alert> : null}
+        <RecordList records={props.rows} selectedTypes={selectedTypes} setRecords={props.setRows} />
       </Paper>
       <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
         <ToggleButtonGroup aria-label="text alignment" >
@@ -61,7 +65,7 @@ export function MainPage(props: { rows: Record[], setRows: (records:Record[])=>v
           </ToggleButton>
           <ToggleButton value="center" onClick={() => {
             const a = document.createElement("a");
-            a.href = URL.createObjectURL(new Blob([props.rows.map(row=>RecordSerializer.serialize(row)).join("\n\n")], { type: "text/plain" }));
+            a.href = URL.createObjectURL(new Blob([props.rows.map(row => RecordSerializer.serialize(row)).join("\n\n")], { type: "text/plain" }));
             a.setAttribute("download", `records-${new Date().toISOString()}.txt`);
             document.body.appendChild(a);
             a.click();
