@@ -12,7 +12,7 @@ import { ManualPage } from './pages/ManualPage';
 
 function App() {
   const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || sampleRecordsRaw).reverse());
-  const [section, setSection] = React.useState(3);
+  const [section, setSection] = React.useState(0);
   const setRowsAndStorage = (newRows: Record[]) => {
     setRows(newRows)
     localStorage.setItem("trainingRecords", newRows.map(row => RecordSerializer.serialize(row)).join("\n\n"))

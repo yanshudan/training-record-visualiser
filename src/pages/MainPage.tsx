@@ -21,6 +21,30 @@ export function MainPage(props: { rows: Record[], setRows: (records: Record[]) =
     setSelectedTypes(selectedTypes.filter((selectedType) => newAllTypes.has(selectedType)))
   }, [props.rows])
 
+  const hiddenFileInput = React.useRef<HTMLInputElement|null>(null);
+  const handleClick = () => {
+    if(hiddenFileInput.current===null) return;
+    hiddenFileInput.current.click();
+  };
+  const handleChange = (event:any) => {
+    event.preventDefault();
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      if (event.target === null) return;
+      const text = event.target.result as string;
+      const newRows = RecordSerializer.deserialize(text).reverse().map((record) => {
+        return {
+          date: record.date,
+          topic: DetectTopic(record.movements) as string,
+          movements: record.movements
+        }
+      })
+      props.setRows(newRows)
+    }
+    if (event.target === null || event.target.files === null) return;
+    reader.readAsText(event.target.files[0])
+  }
+
   return (
     <Paper>
       <Paper>
@@ -42,25 +66,8 @@ export function MainPage(props: { rows: Record[], setRows: (records: Record[]) =
       </Paper>
       <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
         <ToggleButtonGroup aria-label="text alignment" >
-          <ToggleButton value="left" >
-            <input type="file" onChange={(event) => {
-              event.preventDefault();
-              const reader = new FileReader();
-              reader.onload = async (event) => {
-                if (event.target === null) return;
-                const text = event.target.result as string;
-                const newRows = RecordSerializer.deserialize(text).reverse().map((record) => {
-                  return {
-                    date: record.date,
-                    topic: DetectTopic(record.movements) as string,
-                    movements: record.movements
-                  }
-                });
-                props.setRows(newRows)
-              }
-              if (event.target === null || event.target.files === null) return;
-              reader.readAsText(event.target.files[0])
-            }} />
+          <ToggleButton value="left" onClick={handleClick}>
+            <input type="file" ref={hiddenFileInput} onChange={handleChange} style={{display:'none'}}/>
             <FileUploadIcon />
           </ToggleButton>
           <ToggleButton value="center" onClick={() => {
