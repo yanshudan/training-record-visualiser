@@ -8,20 +8,29 @@ import Paper from '@mui/material/Paper';
 
 const manuals = [
   {
-    key: "panel1",
-    title: "How to use this app",
-    content: "This app is designed to help you track your progress in the gym. You can add new records by clicking the + button in the bottom right"
+    title: "Record",
+    content: <div>//TODO</div>
   },
   {
-    key: "panel2",
-    title: "How to use thids app",
-    content: "This app is designed to help you track dsfsdgdfgyour progress in the gym. You can add new records by clicking the + button in the bottom right"
+    title: "Importing Records",
+    content: <div>//TODO</div>
   },
   {
-    key: "panel3",
-    title: "How to use tsahis app",
-    content: "This app is designed tfdsao help you track your progress in the gym. You can add new records by clicking the + button in the bottom right"
-  }
+    title: "Exporting Records",
+    content: <div>//TODO</div>
+  },
+  {
+    title: "Viewing Statistics",
+    content: <div>//TODO</div>
+  },
+  {
+    title: "Using Timers",
+    content: <div>Set time  <br/> Start  <br/> Timeout  <br/> Restart</div>
+  },
+  {
+    title: "Contribute & Feedback",
+    content: <div>Open issue or create a fork in <a href='https://github.com/yanshudan/training-record-visualiser'>github repo</a></div>
+  },
 ]
 
 export function ManualPage() {
@@ -34,7 +43,7 @@ export function ManualPage() {
     <Paper>
       {manuals.map((manual) => {
         return (
-          <Accordion expanded={expanded === manual.key} onChange={handleChange(manual.key)}>
+          <Accordion expanded={expanded === manual.title} onChange={handleChange(manual.title)}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
