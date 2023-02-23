@@ -69,6 +69,9 @@ export function RecordList(props: {
               unit: UnitEnum.kg
             }]
           }, ...props.records,])
+          if (useDefault) {
+            alert("Tap 'Legs' to see your new record")
+          }
         }}>
           {"Create a new record"}<br />
           {"from template"}

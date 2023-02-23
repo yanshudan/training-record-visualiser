@@ -8,20 +8,24 @@ import Paper from '@mui/material/Paper';
 
 const manuals = [
   {
-    title: "Record",
-    content: <div>//TODO</div>
+    title: "Before You Start",
+    content: <div>Record Visualiser doesn't collect or store your data.<br/> We use local storage in your browser to cache the changes.<br/> So your changes are persistent per session but will be lost on refresh.<br/> Please download your record periodically in case your data gets lost on refresh</div>
   },
   {
-    title: "Importing Records",
-    content: <div>//TODO</div>
+    title: "Get Started",
+    content: <div>1. Duplicate and Edit a record on Record Tab<br/> 2. Export as local file</div>
   },
   {
     title: "Exporting Records",
-    content: <div>//TODO</div>
+    content: <div>Tap the donwload button on Record Tab to export your records. You can monifiy and import records afterwards as long as the file is in the same format.</div>
+  },
+  {
+    title: "Importing Records",
+    content: <div>Choose a file from you local drive. Download a sample file if you run into format errors.</div>
   },
   {
     title: "Viewing Statistics",
-    content: <div>//TODO</div>
+    content: <div>Switch between Chart Mode and Card Mode with the buttons on the right bottom</div>
   },
   {
     title: "Using Timers",
