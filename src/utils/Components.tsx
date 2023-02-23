@@ -58,9 +58,12 @@ export function RecordList(props: {
       <CardContent sx={{ "padding-bottom": "0px" }}>
         <Typography variant="h5" component="div" display="inline-block" onClick={() => {
           const defaultType = movementDefinitions.find(val => val.part === props.selectedTypes[0]);
+          const useDefault = props.selectedTypes.length === 0 || defaultType === undefined;
           props.setRecords([{
-            date: new Date(), topic: defaultType === undefined ? "General" : defaultType.part, movements: [{
-              name: props.selectedTypes.length === 0 || defaultType === undefined ? "深蹲" : defaultType.movements[0],
+            date: new Date(),
+            topic: useDefault ? "Legs" : defaultType.part,
+            movements: [{
+              name: useDefault ? "深蹲" : defaultType.movements[0],
               weight: 20,
               reps: [10, 10, 10],
               unit: UnitEnum.kg
