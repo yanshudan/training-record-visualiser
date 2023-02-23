@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@emotion/react';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import PaymentIcon from '@mui/icons-material/Payment';
-import { createTheme } from '@mui/material';
+import { Alert } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -53,6 +53,7 @@ export function StatsPage(props: { rows: Record[] }) {
         }</div>
       </Stack>
       {isRenderGraph ?
+        (filteredRows.length<=1?<Alert severity="warning">Not enough data to render graph, create more than 2 records containing the same movement to see the chart</Alert>:
         <AreaChart width={400} height={400} data={filteredRows
           .filter(row => row.movements.length > 0 && row.date > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 3))
           .reverse()
@@ -78,8 +79,8 @@ export function StatsPage(props: { rows: Record[] }) {
               <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
             </linearGradient>
           </defs>
-        </AreaChart> :
-        <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} />}
+        </AreaChart>) :
+        <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} />}
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
@@ -103,5 +104,5 @@ function filterRows(rows: Record[], selectedType: string, selectedMovements: str
         topic: row.topic
       }
     }
-  )
+  ).filter((row) => row.movements.length > 0);
 }

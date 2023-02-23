@@ -39,6 +39,7 @@ export function RecordList(props: {
   records: Record[],
   setRecords: (records: Record[]) => void,
   selectedTypes: string[]
+  editable: boolean
 }) {
   return (<div>
     {props.records.filter(
@@ -47,6 +48,7 @@ export function RecordList(props: {
       return (<div>
         <EditableCard
           record={record}
+          editable={props.editable}
           onDelete={() => { props.setRecords(props.records.filter((r) => r !== record)) }}
           onDuplicate={() => { props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements }, ...props.records,]) }}
           onUpdate={(newRecord: Record) => {
@@ -80,7 +82,13 @@ export function RecordList(props: {
     </Card>
   </div>)
 }
-export function EditableCard(props: { record: Record, onDelete: () => void, onDuplicate: () => void, onUpdate: (record: Record) => void }) {
+export function EditableCard(props: {
+  record: Record,
+  editable: boolean,
+  onDelete: () => void,
+  onDuplicate: () => void,
+  onUpdate: (record: Record) => void
+}) {
   const [showEditor, setShowEditor] = React.useState(false);
   const [value, setValue] = React.useState("");
   return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
@@ -97,23 +105,26 @@ export function EditableCard(props: { record: Record, onDelete: () => void, onDu
       </CardContent>}
     <Divider />
     <CardActions>
-      <Button size="small" onClick={() => {
-        if (showEditor) {
-          //Confirm changes
-          //TODO update new record to global state
-          try {
-            const newRecord = RecordSerializer.deserialize(value)[0]
-            props.onUpdate(newRecord);
-          } catch (e) {
-            alert(`Invalid input ${value}, error:${e}`)
+      <Button
+        size="small"
+        disabled={!props.editable}
+        onClick={() => {
+          if (showEditor) {
+            //Confirm changes
+            //TODO update new record to global state
+            try {
+              const newRecord = RecordSerializer.deserialize(value)[0]
+              props.onUpdate(newRecord);
+            } catch (e) {
+              alert(`Invalid input ${value}, error:${e}`)
+            }
+          } else {
+            setValue(RecordSerializer.serialize(props.record))
           }
-        } else {
-          setValue(RecordSerializer.serialize(props.record))
-        }
-        setShowEditor(!showEditor)
-      }}>{showEditor ? "Confirm" : "Edit"}</Button>
-      <Button size="small" onClick={props.onDuplicate} disabled={showEditor}>Duplicate</Button>
-      <Button size="small" onClick={props.onDelete} disabled={showEditor}>Delete</Button>
+          setShowEditor(!showEditor)
+        }}>{showEditor ? "Confirm" : "Edit"}</Button>
+      <Button size="small" onClick={props.onDuplicate} disabled={!props.editable || showEditor}>Duplicate</Button>
+      <Button size="small" onClick={props.onDelete} disabled={!props.editable || showEditor}>Delete</Button>
     </CardActions>
   </Card>
 }

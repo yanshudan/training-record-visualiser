@@ -62,7 +62,7 @@ export function MainPage(props: { rows: Record[], setRows: (records: Record[]) =
           </div>
         </Stack>
         {(selectedTypes.length === 0 && allTypes.size !== 0) ? <Alert severity="warning">Please select a record type!</Alert> : null}
-        <RecordList records={props.rows} selectedTypes={selectedTypes} setRecords={props.setRows} />
+        <RecordList records={props.rows} selectedTypes={selectedTypes} setRecords={props.setRows} editable/>
       </Paper>
       <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
         <ToggleButtonGroup aria-label="text alignment" >
