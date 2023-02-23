@@ -41,6 +41,7 @@ export function RecordList(props: {
   selectedTypes: string[]
   editable: boolean
 }) {
+  const showPlaceHolderCard = props.editable || props.records.length === 0;
   return (<div>
     {props.records.filter(
       (record) => props.selectedTypes.includes(record.topic) && record.movements.length > 0
@@ -56,7 +57,7 @@ export function RecordList(props: {
           }} />
       </div>)
     })}
-    <Card sx={{ "border-radius": "10px", "margin-bottom": "1px", height: "200px" }} variant="outlined">
+    {showPlaceHolderCard && <Card sx={{ "border-radius": "10px", "margin-bottom": "1px", height: "200px" }} variant="outlined">
       <CardContent sx={{ "padding-bottom": "0px" }}>
         <Typography variant="h5" component="div" display="inline-block" onClick={() => {
           const defaultType = movementDefinitions.find(val => val.part === props.selectedTypes[0]);
@@ -75,11 +76,10 @@ export function RecordList(props: {
             alert("Tap 'Legs' to see your new record")
           }
         }}>
-          {"Create a new record"}<br />
-          {"from template"}
+          {props.editable ? "Create a new record from template" : "No records found"}
         </Typography>
       </CardContent>
-    </Card>
+    </Card>}
   </div>)
 }
 export function EditableCard(props: {
