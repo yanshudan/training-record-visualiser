@@ -99,8 +99,10 @@ export function EditableCard(props: { record: Record, onDelete: () => void, onDu
             const newRecord = RecordSerializer.deserialize(value)[0]
             props.onUpdate(newRecord);
           } catch (e) {
-            alert(`Invalid input ${e}`)
+            alert(`Invalid input ${value}, error:${e}`)
           }
+        } else {
+          setValue(RecordSerializer.serialize(props.record))
         }
         setShowEditor(!showEditor)
       }}>{showEditor ? "Confirm" : "Edit"}</Button>
