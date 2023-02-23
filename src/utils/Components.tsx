@@ -16,7 +16,8 @@ import '../App.css';
 import { TextField } from '@mui/material';
 import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { movementDefinitions } from './LoadFile';
-
+import TimerIcon from '@mui/icons-material/Timer';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
     {props.name + " " + props.weight + "kg " + props.reps.join(" ")}
@@ -112,8 +113,9 @@ export function BottomNavBar(props: { selection: number, setSection: React.Dispa
   return (<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
     <BottomNavigation showLabels value={props.selection} >
       <BottomNavigationAction onClick={() => props.setSection(0)} label="Records" icon={<FormatListBulletedIcon />} />
-      <BottomNavigationAction onClick={() => props.setSection(1)} label="Calendar" icon={<CalendarMonthIcon />} />
+      <BottomNavigationAction onClick={() => props.setSection(1)} label="Timer" icon={<TimerIcon />} />
       <BottomNavigationAction onClick={() => props.setSection(2)} label="Statistics" icon={<SsidChartIcon />} />
+      <BottomNavigationAction onClick={() => props.setSection(3)} label="Manual" icon={<HelpOutlineIcon />} />
     </BottomNavigation>
   </Paper>)
 }
