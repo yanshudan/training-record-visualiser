@@ -1,8 +1,47 @@
-import { ThemeProvider, createTheme } from '@mui/material';
+import { Button, Paper, TextField } from '@mui/material';
+import React from 'react';
+import { setInterval } from 'timers';
 import '../App.css';
 import { Record } from '../utils/RecordSerializer';
-import React from 'react';
 
 export function TimerPage(props: { rows: Record[] }) {
-  return <div> "This page is under construction" </div>
+  const [stepA, setStepA] = React.useState<number>(0);
+  const [stepB, setStepB] = React.useState<number>(0);
+  const [A, setA] = React.useState<number>(0);
+  const [B, setB] = React.useState<number>(0);
+
+  return <Paper>
+    <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
+      <Clock stepA={stepA} stepB={stepB} />
+    </Paper >
+    <Paper>
+      <TextField label="Step A" type="number" onChange={(event) => setA(parseInt(event.target.value))} />
+      <TextField label="Step B" type="number" onChange={(event) => setB(parseInt(event.target.value))} />
+      <Button variant="contained" onClick={() => {
+        setStepA(A);
+        setStepB(B);
+      }}>start</Button>
+    </Paper>
+  </Paper>
+}
+
+export function Clock(props: { stepA: number, stepB: number }) {
+  React.useEffect(() => {
+    const now = Date.now();
+    setClock(now, now + 1000 * props.stepA, now + 1000 * (props.stepA + props.stepB));
+  }, [props.stepA, props.stepB]);
+
+  const setClock = (start: number, mid: number, end: number) => {
+    if (end <= start) return;
+    const element = document.querySelector('[data-hand]') as HTMLElement;
+    setInterval(() => {
+      const now = Date.now();
+      const ratio = (now - start) / (end - start);
+      element.style.setProperty('--rotation', (ratio * 360).toString());
+      element.style.setProperty('background-color', now < mid ? "green" : now < end ? "yellow" : "red");
+    }, 50);
+  };
+  return <div className="clock">
+    <div className="hand" data-hand></div>
+  </div>
 }

@@ -36,3 +36,26 @@
     transform: rotate(360deg);
   }
 }
+
+.clock{
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background-color: #1f1f1f;
+  border:2px solid #797979;
+}
+
+.clock .hand {
+  --rotation:0;
+  background-color: green;
+  
+  position: relative;
+  /* top:  50%; */
+  left: 50%;
+  width: 4px;
+  height: 50%;
+  transform-origin: bottom;
+  border-radius: 2px;
+  /* z-index: 10; */
+  transform: translateX(-50%) rotate(calc(var(--rotation) * 1deg));
+}

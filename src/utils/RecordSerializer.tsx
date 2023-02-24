@@ -12,7 +12,7 @@ export class RecordSerializer {
   static parseRecord(record: string): Record | undefined {
     try {
       let lines = record.split("\n");
-      let date = new Date(lines[0].split("//")[0]);
+      let date = new Date(lines[0].split("//")[0].split(" ")[0]);
       let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
       return { date, movements, topic: DetectTopic(movements) };
     }
