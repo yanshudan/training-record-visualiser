@@ -9,10 +9,11 @@ export function TimerPage(props: { rows: Record[] }) {
   const [stepB, setStepB] = React.useState<number>(0);
   const [A, setA] = React.useState<number>(0);
   const [B, setB] = React.useState<number>(0);
+  const [trigger, setTrigger] = React.useState<boolean>(false);
 
   return <Paper>
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
-      <Clock stepA={stepA} stepB={stepB} />
+      <Clock stepA={stepA} stepB={stepB} trigger={trigger} />
     </Paper >
     <Paper>
       <TextField label="Step A" type="number" onChange={(event) => setA(parseInt(event.target.value))} />
@@ -20,21 +21,27 @@ export function TimerPage(props: { rows: Record[] }) {
       <Button variant="contained" onClick={() => {
         setStepA(A);
         setStepB(B);
+        setTrigger(!trigger)
       }}>start</Button>
     </Paper>
   </Paper>
 }
 
-export function Clock(props: { stepA: number, stepB: number }) {
+export function Clock(props: { stepA: number, stepB: number, trigger: boolean }) {
+  const [timerId, setTimerId] = React.useState<NodeJS.Timer>();
   React.useEffect(() => {
     const now = Date.now();
-    setClock(now, now + 1000 * props.stepA, now + 1000 * (props.stepA + props.stepB));
-  }, [props.stepA, props.stepB]);
+    if (timerId) {
+      clearInterval(JSON.parse(JSON.stringify(timerId))._id);
+    }
+    const timer = setClock(now, now + 1000 * props.stepA, now + 1000 * (props.stepA + props.stepB));
+    setTimerId(timer);
+  }, [props.stepA, props.stepB, props.trigger]);
 
   const setClock = (start: number, mid: number, end: number) => {
     if (end <= start) return;
     const element = document.querySelector('[data-hand]') as HTMLElement;
-    setInterval(() => {
+    return setInterval(() => {
       const now = Date.now();
       const ratio = (now - start) / (end - start);
       element.style.setProperty('--rotation', (ratio * 360).toString());
