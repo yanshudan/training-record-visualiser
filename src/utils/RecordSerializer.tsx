@@ -13,6 +13,8 @@ export class RecordSerializer {
     try {
       let lines = record.split("\n");
       let date = new Date(lines[0].split("//")[0].split(" ")[0]);
+      if (date.getFullYear() === 2001) date.setFullYear(new Date().getFullYear());
+      if (date.getTime() > new Date().getTime()) date.setFullYear(date.getFullYear() - 1);
       let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
       return { date, movements, topic: DetectTopic(movements) };
     }
@@ -24,15 +26,17 @@ export class RecordSerializer {
   }
   static parseMovement(raw: string): Movement | undefined {
     try {
-
-      const movement = (raw.indexOf("//") == -1) ? raw.split(" ") : raw.split("//")[0].split(" ");
-      if (movement.length < 3) {
-        throw new Error("Empty movement");
+      raw = raw.split("//")[0];
+      const regex = /[\d\.]+(kg|lb)/;
+      const match = raw.match(regex);
+      if (match === null || match.length === 0) {
+        throw new Error("No weight found");
       }
-      let [name, weightWithUnit, ...reps] = movement;
+      let weightWithUnit = match[0];
       let unit = weightWithUnit.slice(-2) === "kg" ? UnitEnum.kg : UnitEnum.lb;
+      let reps = raw.slice(match.index! + weightWithUnit.length).trim().split(" ");
       return {
-        name, weight: Number(weightWithUnit.slice(0, -2)), unit, reps: reps.filter(r => r !== "").map(rep => {
+        name: raw.slice(0, match.index).trim(), weight: Number(weightWithUnit.slice(0, -2)), unit, reps: reps.filter(r => r !== "").map(rep => {
           if (rep.indexOf("/") !== -1) {
             throw new Error("Fractional reps not supported");
           }
