@@ -11,8 +11,8 @@ import { sampleRecordsRaw } from './utils/LoadFile';
 import { ManualPage } from './pages/ManualPage';
 
 function App() {
-  const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || sampleRecordsRaw).reverse());
-  const [section, setSection] = React.useState(1);
+  const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || sampleRecordsRaw).sort((a, b) => b.date.getTime() - a.date.getTime()));
+  const [section, setSection] = React.useState(0);
   const setRowsAndStorage = (newRows: Record[]) => {
     setRows(newRows)
     localStorage.setItem("trainingRecords", newRows.map(row => RecordSerializer.serialize(row)).join("\n\n"))

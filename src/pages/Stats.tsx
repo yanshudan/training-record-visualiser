@@ -1,4 +1,3 @@
-import { ThemeProvider } from '@emotion/react';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import PaymentIcon from '@mui/icons-material/Payment';
 import { Alert } from '@mui/material';
@@ -8,13 +7,14 @@ import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
-import { Area, AreaChart, Legend, Tooltip, XAxis } from 'recharts';
+import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
 import { RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/LoadFile';
 import { Record } from '../utils/RecordSerializer';
 
-
+export const oneday = 1000 * 60 * 60 * 24;
+export const today = new Date();
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
@@ -36,7 +36,7 @@ export function StatsPage(props: { rows: Record[] }) {
           })}
         </div>
       </Stack>
-      <Stack sx={{ "margin-top": "10px" }}>
+      <Stack sx={{ marginTop: "10px", marginBottom: "20px" }}>
         <div>{
           movementDefinitions.filter((definition) => definition.part === selectedType)[0].movements.map((name) => {
             return <Chip label={name} onClick={() => {
@@ -53,33 +53,37 @@ export function StatsPage(props: { rows: Record[] }) {
         }</div>
       </Stack>
       {isRenderGraph ?
-        (filteredRows.length<=1?<Alert severity="warning">Not enough data to render graph, create more than 2 records containing the same movement to see the chart</Alert>:
-        <AreaChart width={400} height={400} data={filteredRows
-          .filter(row => row.movements.length > 0 && row.date > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 3))
-          .reverse()
-          .map(row => {
-            return {
-              date: row.date,
-              weight: row.movements[0].weight,
-              amount: row.movements[0].weight * row.movements[0].reps.reduce((a, b) => a + b, 0) / 50
-            }
-          })}>
-          <Tooltip />
-          <XAxis dataKey="date" scale="time" />
-          <Legend />
-          <Area type="monotone" dataKey="weight" stroke="#2ac2d2" fill="url(#colorUv)" />
-          <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
-          <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-        </AreaChart>) :
+        (filteredRows.length <= 1 ? <Alert severity="warning">Not enough data to render graph, create more than 2 records containing the same movement to see the chart</Alert> :
+          <ResponsiveContainer width="95%" height={350}>
+            <ComposedChart data={filteredRows
+              .filter(row => row.movements.length > 0 && row.date > new Date(today.getTime() - oneday * 90))
+              .reverse()
+              .map(row => {
+                return {
+                  date: row.date,
+                  tillNow: Math.round((today.getTime() - row.date.getTime()) / oneday),
+                  weight: row.movements[0].weight,
+                  amount: row.movements[0].weight * row.movements[0].reps.reduce((a, b) => a + b, 0) / 50
+                }
+              })}>
+              <Tooltip />
+              <XAxis dataKey="tillNow" scale="linear" type="number" axisLine={false} tickLine={false} reversed />
+              <Legend />
+              <Line type="monotone" dataKey="weight" stroke="#2ac2d2" />
+              <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
+              <defs>
+                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+            </ComposedChart>
+          </ResponsiveContainer>
+        ) :
         <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} />}
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
