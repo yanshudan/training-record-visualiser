@@ -1,23 +1,24 @@
+import { ActivityRings } from '@jonasdoesthings/react-activity-rings';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import SsidChartIcon from '@mui/icons-material/SsidChart';
+import TimerIcon from '@mui/icons-material/Timer';
+import { Divider, Grid, TextField } from '@mui/material';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import '../App.css';
-import React from 'react'
-import { Divider } from '@mui/material';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import SsidChartIcon from '@mui/icons-material/SsidChart';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import React from 'react';
+import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { TextField } from '@mui/material';
-import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
+import { oneday } from '../pages/Stats';
 import { movementDefinitions } from './LoadFile';
-import TimerIcon from '@mui/icons-material/Timer';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
+
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
     {props.name + " " + props.weight + "kg " + props.reps.join(" ")}
@@ -137,4 +138,66 @@ export function BottomNavBar(props: { selection: number, setSection: React.Dispa
       <BottomNavigationAction onClick={() => props.setSection(3)} label="Manual" icon={<HelpOutlineIcon />} />
     </BottomNavigation>
   </Paper>)
+}
+
+export function MixedCharts(props: { data: { date: Date, tillNow: number, weight: number, amount: number }[] }) {
+  return <ResponsiveContainer width="95%" height={350}>
+    <ComposedChart data={props.data}>
+      <Tooltip />
+      <XAxis dataKey="tillNow" scale="linear" type="number" axisLine={false} tickLine={false} reversed />
+      <Legend />
+      <Line type="monotone" dataKey="weight" stroke="#2ac2d2" />
+      <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
+      <defs>
+        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
+          <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
+        </linearGradient>
+        <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
+          <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
+        </linearGradient>
+      </defs>
+    </ComposedChart>
+  </ResponsiveContainer>
+}
+interface ColorMap { [key: string]: { outColor: string, inColor: string } }
+export const themes: ColorMap = {
+  "Chest": {
+    outColor: "#ff0000",
+    inColor: "#ff8800",
+  },
+  "Legs": {
+    outColor: "#00ff00",
+    inColor: "#00ff88",
+  },
+  "Back": {
+    outColor: "#0000ff",
+    inColor: "#0088ff",
+  },
+  "General": {
+    outColor: "#ff00ff",
+    inColor: "#ff88ff",
+  },
+  "Shoulder": {
+    outColor: "#ffff00",
+    inColor: "#ffff88",
+  },
+}
+export function Activities(props: { records: Record[] }) {
+
+  return <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 7, sm: 8, md: 12 }}>
+    {Array.from(Array(90)).map((_, index) => {
+      const today = new Date();
+      const row = props.records.find((r) => Math.round((today.getTime() - r.date.getTime()) / oneday) === index + 1);
+      console.log(row)
+      return <Grid item xs={1} sm={4} md={4} key={index}>
+        <ActivityRings rings={[
+          // { filledPercentage: 0.25, color: '#00fff8' },
+          { filledPercentage: row ? row.movements[0].weight : 0.75 / 60, color: row ? themes[row.topic].outColor : "#111111" },
+          { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: row ? themes[row.topic].inColor : "#555555" },
+        ]} />
+      </Grid>
+    })}
+  </Grid>
 }
