@@ -15,15 +15,15 @@ export function TimerPage(props: { rows: Record[] }) {
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
       <Clock stepA={stepA} stepB={stepB} trigger={trigger} />
     </Paper >
-    <Paper>
+    <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
       <TextField label="Step A" type="number" onChange={(event) => setA(parseInt(event.target.value))} />
       <TextField label="Step B" type="number" onChange={(event) => setB(parseInt(event.target.value))} />
-      <Button variant="contained" onClick={() => {
-        setStepA(A);
-        setStepB(B);
-        setTrigger(!trigger)
-      }}>start</Button>
     </Paper>
+    <Button sx={{ transform: "translateX(-50%)", left: "50%", transformOrigin: "center" }} variant="contained" onClick={() => {
+      setStepA(A);
+      setStepB(B);
+      setTrigger(!trigger)
+    }}>start</Button>
   </Paper>
 }
 
@@ -41,6 +41,9 @@ export function Clock(props: { stepA: number, stepB: number, trigger: boolean })
   const setClock = (start: number, mid: number, end: number) => {
     if (end <= start) return;
     const element = document.querySelector('[data-hand]') as HTMLElement;
+    const markerElemet = document.querySelector('[data-marker]') as HTMLElement;
+    const midRatio = (mid - start) / (end - start);
+    markerElemet.style.setProperty('--rotation', (midRatio * 360).toString());
     return setInterval(() => {
       const now = Date.now();
       const ratio = (now - start) / (end - start);
@@ -50,5 +53,6 @@ export function Clock(props: { stepA: number, stepB: number, trigger: boolean })
   };
   return <div className="clock">
     <div className="hand" data-hand></div>
+    <div className="marker" data-marker></div>
   </div>
 }
