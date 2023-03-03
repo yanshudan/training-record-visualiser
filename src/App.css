@@ -42,7 +42,7 @@
   height: 300px;
   border-radius: 50%;
   background-color: #1f1f1f;
-  border:2px solid #797979;
+  border:2px solid #757575;
 }
 
 .clock .hand {
@@ -61,7 +61,7 @@
 }
 .clock .marker {
   --rotation:0;
-  background-color: red;
+  background-color: rgb(255, 0, 0);
   
   position: relative;
   top:  -50%;

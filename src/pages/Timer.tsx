@@ -7,19 +7,19 @@ import { Record } from '../utils/RecordSerializer';
 export function TimerPage(props: { rows: Record[] }) {
   const [stepA, setStepA] = React.useState<number>(0);
   const [stepB, setStepB] = React.useState<number>(0);
-  const [A, setA] = React.useState<number>(0);
-  const [B, setB] = React.useState<number>(0);
+  const [A, setA] = React.useState<number>(50);
+  const [B, setB] = React.useState<number>(120);
   const [trigger, setTrigger] = React.useState<boolean>(false);
 
   return <Paper>
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
       <Clock stepA={stepA} stepB={stepB} trigger={trigger} />
     </Paper >
-    <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
-      <TextField label="Step A" type="number" onChange={(event) => setA(parseInt(event.target.value))} />
-      <TextField label="Step B" type="number" onChange={(event) => setB(parseInt(event.target.value))} />
+    <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center", marginTop: "20px", marginBottom: "50px" }}>
+      <TextField label="Train" type="number" onChange={(event) => setA(parseInt(event.target.value))} defaultValue={50} />
+      <TextField label="Rest" type="number" onChange={(event) => setB(parseInt(event.target.value))} defaultValue={120} />
     </Paper>
-    <Button sx={{ transform: "translateX(-50%)", left: "50%", transformOrigin: "center" }} variant="contained" onClick={() => {
+    <Button sx={{ transform: "translateX(-50%)", left: "50%", transformOrigin: "center", width: "100px", height: "50px" }} variant="contained" onClick={() => {
       setStepA(A);
       setStepB(B);
       setTrigger(!trigger)
@@ -29,6 +29,7 @@ export function TimerPage(props: { rows: Record[] }) {
 
 export function Clock(props: { stepA: number, stepB: number, trigger: boolean }) {
   const [timerId, setTimerId] = React.useState<NodeJS.Timer>();
+  const [info, setInfo] = React.useState<string>("Timer");
   React.useEffect(() => {
     const now = Date.now();
     if (timerId) {
@@ -47,6 +48,14 @@ export function Clock(props: { stepA: number, stepB: number, trigger: boolean })
     return setInterval(() => {
       const now = Date.now();
       const ratio = (now - start) / (end - start);
+      if (ratio < midRatio) {
+        setInfo(`${((mid - now) / 1000).toFixed(1)}`)
+      } else if (ratio < 1) {
+        setInfo(`${((end - now) / 1000).toFixed(1)}`)
+      } else {
+        setInfo(`${((now - end) / 1000).toFixed(1)}`)
+      }
+
       element.style.setProperty('--rotation', (ratio * 360).toString());
       element.style.setProperty('background-color', now < mid ? "green" : now < end ? "yellow" : "red");
     }, 50);
@@ -54,5 +63,12 @@ export function Clock(props: { stepA: number, stepB: number, trigger: boolean })
   return <div className="clock">
     <div className="hand" data-hand></div>
     <div className="marker" data-marker></div>
+    <h2 style={{
+      position: "relative",
+      width: "fit-content",
+      left: "50%",
+      transform: "translateX(-50%)",
+      margin: "0px"
+    }}>{info}</h2>
   </div>
 }
