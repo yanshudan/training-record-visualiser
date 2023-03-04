@@ -3,31 +3,34 @@ import React from 'react';
 import { setInterval } from 'timers';
 import '../App.css';
 import { Record } from '../utils/RecordSerializer';
+interface ClockProps {
+  data: {
+    start: number,
+    mid: number,
+    end: number
+  }
+}
 
 export function TimerPage(props: { rows: Record[] }) {
-  const [stepA, setStepA] = React.useState<number>(0);
-  const [stepB, setStepB] = React.useState<number>(0);
   const [A, setA] = React.useState<number>(50);
   const [B, setB] = React.useState<number>(120);
-  const [trigger, setTrigger] = React.useState<boolean>(false);
-
+  const [clockProps, setClockProps] = React.useState<ClockProps>({ data: { start: 0, mid: 0, end: 0 } });
   return <Paper>
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
-      <Clock stepA={stepA} stepB={stepB} trigger={trigger} />
+      <Clock data={clockProps.data} />
     </Paper >
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center", marginTop: "20px", marginBottom: "50px" }}>
       <TextField label="Train" type="number" onChange={(event) => setA(parseInt(event.target.value))} defaultValue={50} />
       <TextField label="Rest" type="number" onChange={(event) => setB(parseInt(event.target.value))} defaultValue={120} />
     </Paper>
     <Button sx={{ transform: "translateX(-50%)", left: "50%", transformOrigin: "center", width: "100px", height: "50px" }} variant="contained" onClick={() => {
-      setStepA(A);
-      setStepB(B);
-      setTrigger(!trigger)
+      const now = Date.now();
+      setClockProps({ data: { start: now, mid: now + A * 1000, end: now + (A + B) * 1000 } })
     }}>start</Button>
   </Paper>
 }
 
-export function Clock(props: { stepA: number, stepB: number, trigger: boolean }) {
+export function Clock(props: ClockProps) {
   const [timerId, setTimerId] = React.useState<NodeJS.Timer>();
   const [info, setInfo] = React.useState<string>("Timer");
   React.useEffect(() => {
@@ -35,9 +38,9 @@ export function Clock(props: { stepA: number, stepB: number, trigger: boolean })
     if (timerId) {
       clearInterval(JSON.parse(JSON.stringify(timerId))._id);
     }
-    const timer = setClock(now, now + 1000 * props.stepA, now + 1000 * (props.stepA + props.stepB));
+    const timer = setClock(props.data.start,props.data.mid,props.data.end);
     setTimerId(timer);
-  }, [props.stepA, props.stepB, props.trigger]);
+  }, [props.data]);
 
   const setClock = (start: number, mid: number, end: number) => {
     if (end <= start) return;
