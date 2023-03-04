@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import React from 'react';
 import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { oneday, themes, today } from '../utils/Constants';
+import { themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
 import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
@@ -164,12 +164,22 @@ export function MyComposedChart(props: { data: { date: Date, tillNow: number, we
 }
 
 export function Activities(props: { records: Record[] }) {
-  const totalDays = 42;
+  const totalDays = 35;
   return <Grid container columns={{ xs: 7, sm: 8, md: 12 }}>
-    {Array.from(Array(totalDays)).map((_, index) => {
-      const weekdayOffset = today.getDay();
-      const row = props.records.find((r) => DateDiffInDays(today, r.date) === totalDays - (index + weekdayOffset - 5));
-      const date = MinusDays(totalDays - (index + weekdayOffset - 5));
+    {Array.from(Array(totalDays+7)).map((_, index) => {
+      const daydiff = totalDays - (index - today.getDay());
+      const row = props.records.find((r) => DateDiffInDays(today, r.date) === daydiff);
+      const date = MinusDays(daydiff);
+      if (daydiff < 0 || daydiff >= totalDays) {
+        
+        return today.getDay()!==6 && <Grid item xs={1} sm={4} md={4} key={index}>
+          <ActivityRings rings={[
+            { filledPercentage:  0.35, color:  "#" },
+            { filledPercentage: 0.75 , color: "#" },
+          ]} />
+          <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
+        </Grid>
+        }
       return <Grid item xs={1} sm={4} md={4} key={index}>
         <ActivityRings rings={[
           { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: row ? themes[row.topic].inColor : "#555555" },
