@@ -13,7 +13,7 @@ import CardContent from '@mui/material/CardContent';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import React from 'react';
-import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
 import { oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
@@ -161,19 +161,16 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
   return <Paper>
     <ResponsiveContainer width="95%" height={350} >
       <ComposedChart data={rangedRows}>
-        <Tooltip />
+        <Tooltip contentStyle={{ background: "#1e1e1e" }} />
         <XAxis dataKey="tillNow" scale="linear" type="number" axisLine={false} tickLine={false} reversed />
         <Legend />
-        <Line type="monotone" dataKey="weight" stroke="#2ac2d2" />
-        <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
+        <Line type="monotone" dataKey="weight" stroke="#afff9d" dot={false} />
+        <Bar type="monotone" dataKey="amount" fill="url(#colorPv)" />
         <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
-          </linearGradient>
+
           <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
+            <stop offset="5%" stopColor="#65b4f1" stopOpacity={1} />
+            <stop offset="95%" stopColor="#9dffc0" stopOpacity={1} />
           </linearGradient>
         </defs>
       </ComposedChart>
