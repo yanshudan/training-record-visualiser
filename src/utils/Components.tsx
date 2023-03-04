@@ -95,7 +95,19 @@ export function EditableCard(props: {
   const [value, setValue] = React.useState("");
   return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
     {showEditor ?
-      <TextField defaultValue={RecordSerializer.serialize(props.record)} multiline fullWidth onChange={(newVal) => { setValue(newVal.target.value) }} /> :
+      <TextField
+        defaultValue={RecordSerializer.serialize(props.record)}
+        multiline
+        fullWidth
+        onChange={(newVal) => {
+          setValue(newVal.target.value)
+          try {
+            const newRecord = RecordSerializer.deserialize(newVal.target.value)[0]
+            props.onUpdate(newRecord);
+          } catch (e) {
+            alert(`Invalid input ${value}, error:${e}`)
+          }
+        }} /> :
       <CardContent sx={{ "padding-bottom": "0px" }}>
         <Typography variant="h5" component="div" display="inline-block">
           {props.record.topic}
@@ -111,16 +123,7 @@ export function EditableCard(props: {
         size="small"
         disabled={!props.editable}
         onClick={() => {
-          if (showEditor) {
-            //Confirm changes
-            //TODO update new record to global state
-            try {
-              const newRecord = RecordSerializer.deserialize(value)[0]
-              props.onUpdate(newRecord);
-            } catch (e) {
-              alert(`Invalid input ${value}, error:${e}`)
-            }
-          } else {
+          if (!showEditor) {
             setValue(RecordSerializer.serialize(props.record))
           }
           setShowEditor(!showEditor)
