@@ -213,10 +213,11 @@ export function Activities(props: { records: Record[] }) {
           <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
         </Grid>
       }
+      const colorconfig = row ? (themes[row.topic] || { inColor: "#888800", outColor: "#008888" }) : { inColor: "#555555", outColor: "#111111" };
       return <Grid item xs={1} sm={4} md={4} key={index}>
         <ActivityRings rings={[
-          { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: row ? themes[row.topic].inColor : "#555555" },
-          { filledPercentage: row ? row.movements[0].weight / 60 : 0.75, color: row ? themes[row.topic].outColor : "#111111" },
+          { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: colorconfig.inColor },
+          { filledPercentage: row ? row.movements[0].weight / 60 : 0.75, color: colorconfig.outColor },
         ]} />
         <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
       </Grid>

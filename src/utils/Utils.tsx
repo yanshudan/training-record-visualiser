@@ -2,7 +2,7 @@ import { movementToPart, oneday, today } from "./Constants";
 import { Movement } from "./RecordSerializer";
 
 export function DetectTopic(movements: Movement[]): string {
-    return movementToPart.get(movements[0].name) as string;
+    return movementToPart.get(movements[0].name) || "Other" as string;
 }
 
 export function MinusDays(n: number) {
