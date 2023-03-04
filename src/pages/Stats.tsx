@@ -53,17 +53,7 @@ export function StatsPage(props: { rows: Record[] }) {
         </Stack>}
       {renderType === "chart" ?
         (filteredRows.length <= 1 ? <Alert severity="warning">Not enough data to render graph, create more than 2 records containing the same movement to see the chart</Alert> :
-          <MyComposedChart data={filteredRows
-            .filter(row => row.movements.length > 0 && row.date > new Date(today.getTime() - oneday * 90))
-            .reverse()
-            .map(row => {
-              return {
-                date: row.date,
-                tillNow: Math.round((today.getTime() - row.date.getTime()) / oneday),
-                weight: row.movements[0].weight,
-                amount: row.movements[0].weight * row.movements[0].reps.reduce((a, b) => a + b, 0) / 50
-              }
-            })} />
+          <MyComposedChart filteredRows={filteredRows} />
         ) : renderType === "cards" ?
           <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} /> :
           <Activities records={props.rows} />}

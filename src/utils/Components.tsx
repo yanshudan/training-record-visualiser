@@ -3,7 +3,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 import TimerIcon from '@mui/icons-material/Timer';
-import { Divider, Grid, TextField } from '@mui/material';
+import { Divider, Grid, Slider, TextField } from '@mui/material';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Button from '@mui/material/Button';
@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import React from 'react';
 import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { themes, today } from '../utils/Constants';
+import { oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
 import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
@@ -141,49 +141,79 @@ export function BottomNavBar(props: { selection: number, setSection: React.Dispa
   </Paper>)
 }
 
-export function MyComposedChart(props: { data: { date: Date, tillNow: number, weight: number, amount: number }[] }) {
-  return <ResponsiveContainer width="95%" height={350}>
-    <ComposedChart data={props.data}>
-      <Tooltip />
-      <XAxis dataKey="tillNow" scale="linear" type="number" axisLine={false} tickLine={false} reversed />
-      <Legend />
-      <Line type="monotone" dataKey="weight" stroke="#2ac2d2" />
-      <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
-      <defs>
-        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
-          <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
-        </linearGradient>
-        <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
-          <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
-        </linearGradient>
-      </defs>
-    </ComposedChart>
-  </ResponsiveContainer>
+export function MyComposedChart(props: { filteredRows: Record[] }) {
+  const [weeks, setWeeks] = React.useState(12);
+
+  const rangedRows=props.filteredRows
+    .filter(row => row.movements.length > 0 && row.date > new Date(today.getTime() - oneday * weeks * 7))
+    .reverse()
+    .map(row => {
+      return {
+        date: row.date,
+        tillNow: Math.round((today.getTime() - row.date.getTime()) / oneday),
+        weight: row.movements[0].weight,
+        amount: row.movements[0].weight * row.movements[0].reps.reduce((a, b) => a + b, 0) / 50
+      }
+    });
+  return <Paper>
+    <ResponsiveContainer width="95%" height={350}>
+      <ComposedChart data={rangedRows}>
+        <Tooltip />
+        <XAxis dataKey="tillNow" scale="linear" type="number" axisLine={false} tickLine={false} reversed />
+        <Legend />
+        <Line type="monotone" dataKey="weight" stroke="#2ac2d2" />
+        <Area type="monotone" dataKey="amount" stroke="#d2c21a" fill="url(#colorPv)" />
+        <defs>
+          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#2ac2d2" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="#2ac2d2" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#d2c21a" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="#d2c21a" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+      </ComposedChart>
+    </ResponsiveContainer>
+    <Slider
+      aria-label="Custom marks"
+      defaultValue={12}
+      // getAriaValueText={valuetext}
+      step={8}
+      valueLabelDisplay="auto"
+      marks={[
+        { value: 12, label: "12 weeks" },
+        { value: 20, label: "20 weeks" },
+        { value: 36, label: "36 weeks" },
+        { value: 52, label: "52 weeks" },
+      ]}
+      onChange={(_,val) => { setWeeks(val as number) }}
+    />
+
+  </Paper>
 }
 
 export function Activities(props: { records: Record[] }) {
   const totalDays = 35;
   return <Grid container columns={{ xs: 7, sm: 8, md: 12 }}>
-    {Array.from(Array(totalDays+7)).map((_, index) => {
+    {Array.from(Array(totalDays + 7)).map((_, index) => {
       const daydiff = totalDays - (index - today.getDay());
       const row = props.records.find((r) => DateDiffInDays(today, r.date) === daydiff);
       const date = MinusDays(daydiff);
       if (daydiff < 0 || daydiff >= totalDays) {
-        
-        return today.getDay()!==6 && <Grid item xs={1} sm={4} md={4} key={index}>
+
+        return today.getDay() !== 6 && <Grid item xs={1} sm={4} md={4} key={index}>
           <ActivityRings rings={[
-            { filledPercentage:  0.35, color:  "#" },
-            { filledPercentage: 0.75 , color: "#" },
+            { filledPercentage: 0.35, color: "#" },
+            { filledPercentage: 0.75, color: "#" },
           ]} />
           <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
         </Grid>
-        }
+      }
       return <Grid item xs={1} sm={4} md={4} key={index}>
         <ActivityRings rings={[
           { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: row ? themes[row.topic].inColor : "#555555" },
-          { filledPercentage: row ? row.movements[0].weight/ 60 : 0.75, color: row ? themes[row.topic].outColor : "#111111" },
+          { filledPercentage: row ? row.movements[0].weight / 60 : 0.75, color: row ? themes[row.topic].outColor : "#111111" },
         ]} />
         <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
       </Grid>
