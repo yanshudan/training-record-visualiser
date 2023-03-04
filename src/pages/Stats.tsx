@@ -1,6 +1,6 @@
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PaymentIcon from '@mui/icons-material/Payment';
-import WifiTetheringIcon from '@mui/icons-material/WifiTethering';
 import { Alert } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
@@ -10,7 +10,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
 import { Activities, MyComposedChart, RecordList } from '../utils/Components';
-import { movementDefinitions, movementToPart, oneday, today } from '../utils/Constants';
+import { movementDefinitions, movementToPart } from '../utils/Constants';
 import { Record } from '../utils/RecordSerializer';
 
 export function StatsPage(props: { rows: Record[] }) {
@@ -61,7 +61,7 @@ export function StatsPage(props: { rows: Record[] }) {
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
         <ToggleButton value="left" selected={renderType === "rings"} onClick={() => setRenderType("rings")}>
-          <WifiTetheringIcon />
+          <CalendarMonthIcon />
         </ToggleButton>
         <ToggleButton value="center" selected={renderType === "chart"} onClick={() => setRenderType("chart")}>
           <AutoGraphIcon />

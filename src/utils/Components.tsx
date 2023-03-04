@@ -144,7 +144,7 @@ export function BottomNavBar(props: { selection: number, setSection: React.Dispa
 export function MyComposedChart(props: { filteredRows: Record[] }) {
   const [weeks, setWeeks] = React.useState(12);
 
-  const rangedRows=props.filteredRows
+  const rangedRows = props.filteredRows
     .filter(row => row.movements.length > 0 && row.date > new Date(today.getTime() - oneday * weeks * 7))
     .reverse()
     .map(row => {
@@ -156,7 +156,7 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
       }
     });
   return <Paper>
-    <ResponsiveContainer width="95%" height={350}>
+    <ResponsiveContainer width="95%" height={350} >
       <ComposedChart data={rangedRows}>
         <Tooltip />
         <XAxis dataKey="tillNow" scale="linear" type="number" axisLine={false} tickLine={false} reversed />
@@ -178,16 +178,19 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
     <Slider
       aria-label="Custom marks"
       defaultValue={12}
+      min={12}
+      max={52}
+      sx={{ width: "80%", left: "10%" }}
       // getAriaValueText={valuetext}
-      step={8}
-      valueLabelDisplay="auto"
+      step={4}
+      valueLabelDisplay="on"
       marks={[
         { value: 12, label: "12 weeks" },
         { value: 20, label: "20 weeks" },
         { value: 36, label: "36 weeks" },
         { value: 52, label: "52 weeks" },
       ]}
-      onChange={(_,val) => { setWeeks(val as number) }}
+      onChange={(_, val) => { setWeeks(val as number) }}
     />
 
   </Paper>
