@@ -15,9 +15,14 @@ import { Record, RecordSerializer } from '../utils/RecordSerializer';
 import { DetectTopic } from '../utils/Utils';
 import { today } from '../utils/Constants';
 
-export function MainPage(props: { rows: Record[], setRows: (records: Record[]) => void }) {
-  const [allTypes, setAllTypes] = React.useState<Set<string>>(new Set());
-  const [selectedTypes, setSelectedTypes] = React.useState<string[]>(["Chest"]);
+export function MainPage(props: {
+  rows: Record[],
+  setRows: (records: Record[]) => void,
+  allTypes: Set<string>,
+  setAllTypes:(allTypes:Set<string>)=>void,
+  selectedTypes: string[],
+  setSelectedTypes: (selectedTypes: string[]) => void,
+}) {
   const [open, setOpen] = React.useState(false);
   const [scroll, setScroll] = React.useState<DialogProps['scroll']>('paper');
   const [value, setValue] = React.useState<string>("");
@@ -25,8 +30,8 @@ export function MainPage(props: { rows: Record[], setRows: (records: Record[]) =
 
   React.useEffect(() => {
     const newAllTypes = new Set(props.rows.map((row) => row.topic));
-    setAllTypes(newAllTypes)
-    setSelectedTypes(selectedTypes.filter((selectedType) => newAllTypes.has(selectedType)))
+    props.setAllTypes(newAllTypes)
+    props.setSelectedTypes(props.selectedTypes.filter((selectedType) => newAllTypes.has(selectedType)))
   }, [props.rows])
 
   const hiddenFileInput = React.useRef<HTMLInputElement|null>(null);
@@ -70,19 +75,19 @@ export function MainPage(props: { rows: Record[], setRows: (records: Record[]) =
       <Paper>
         <Stack direction="row" spacing={1} >
           <div>{
-            Array.from(allTypes.values()).map((type) => {
+            Array.from(props.allTypes.values()).map((type) => {
               return <Chip label={type} onClick={() => {
-                if (selectedTypes.includes(type)) {
-                  setSelectedTypes(selectedTypes.filter((selectedType) => selectedType !== type))
+                if (props.selectedTypes.includes(type)) {
+                  props.setSelectedTypes(props.selectedTypes.filter((selectedType) => selectedType !== type))
                 } else {
-                  setSelectedTypes([...selectedTypes, type])
+                  props.setSelectedTypes([...props.selectedTypes, type])
                 }
-              }} color={selectedTypes.includes(type) ? "success" : "info"} />
+              }} color={props.selectedTypes.includes(type) ? "success" : "info"} />
             })}
           </div>
         </Stack>
-        {(selectedTypes.length === 0 && allTypes.size !== 0) ? <Alert severity="warning">Please select a record type!</Alert> : null}
-        <RecordList records={props.rows} selectedTypes={selectedTypes} setRecords={props.setRows} editable/>
+        {(props.selectedTypes.length === 0 && props.allTypes.size !== 0) ? <Alert severity="warning">Please select a record type!</Alert> : null}
+        <RecordList records={props.rows} selectedTypes={props.selectedTypes} setRecords={props.setRows} editable/>
       </Paper>
       <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
         <ToggleButtonGroup aria-label="text alignment" >

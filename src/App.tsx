@@ -15,14 +15,23 @@ function App() {
   const [section, setSection] = React.useState(0);
   const [clockProps, setClockProps] = React.useState<ClockProps>({ data: { start: 0, mid: 0, end: 0 }});
   const [timer, setTimer] = React.useState<NodeJS.Timer | undefined>(undefined);
-  
+  const [allTypes, setAllTypes] = React.useState<Set<string>>(new Set());
+  const [selectedTypes, setSelectedTypes] = React.useState<string[]>(["Chest"]);
+
   const setRowsAndStorage = (newRows: Record[]) => {
     setRows(newRows)
     localStorage.setItem("trainingRecords", newRows.map(row => RecordSerializer.serialize(row)).join("\n\n"))
   }
   return <ThemeProvider theme={createTheme({ palette: { mode: "dark" } })}>
     {
-      section === 0 ? <MainPage rows={rows} setRows={setRowsAndStorage} /> :
+      section === 0 ? <MainPage
+        rows={rows}
+        setRows={setRowsAndStorage}
+        allTypes={allTypes}
+        setAllTypes={setAllTypes}
+        selectedTypes={selectedTypes}
+        setSelectedTypes={setSelectedTypes}
+      /> :
         section === 1 ?
           <TimerPage rows={rows} clockProps={clockProps} setClockProps={setClockProps} timer={timer} setTimer={setTimer} /> :
           section === 2 ?
