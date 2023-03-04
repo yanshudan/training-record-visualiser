@@ -7,7 +7,7 @@ import { MainPage } from './pages/MainPage';
 import { StatsPage } from './pages/Stats';
 import { BottomNavBar } from './utils/Components';
 import { Record, RecordSerializer } from './utils/RecordSerializer';
-import { sampleRecordsRaw } from './utils/LoadFile';
+import { sampleRecordsRaw } from './utils/Constants';
 import { ManualPage } from './pages/ManualPage';
 
 function App() {

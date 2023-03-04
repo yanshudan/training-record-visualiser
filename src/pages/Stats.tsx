@@ -10,15 +10,13 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
 import { Activities, MixedCharts, RecordList } from '../utils/Components';
-import { movementDefinitions, movementToPart } from '../utils/LoadFile';
+import { movementDefinitions, movementToPart, oneday, today } from '../utils/Constants';
 import { Record } from '../utils/RecordSerializer';
 
-export const oneday = 1000 * 60 * 60 * 24;
-export const today = new Date();
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
-  const [renderType, setRenderType] = React.useState<"cards" | "chart" | "rings">("chart");
+  const [renderType, setRenderType] = React.useState<"cards" | "chart" | "rings">("rings");
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));

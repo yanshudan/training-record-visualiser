@@ -1,6 +1,30 @@
-export function LoadTrainingRecords(fileName = "../record.txt") {
-    return ``
+interface ColorMap { [key: string]: { outColor: string, inColor: string } }
+
+export const themes: ColorMap = {
+    "Chest": {
+        outColor: "#99ff00",
+        inColor: "#ffff00",
+    },
+    "Legs": {
+        outColor: "#ff8800",
+        inColor: "#ff0000",
+    },
+    "Back": {
+        outColor: "#0099ff",
+        inColor: "#00ffff",
+    },
+    "General": {
+        outColor: "#ff00ff",
+        inColor: "#ff88ff",
+    },
+    "Shoulder": {
+        outColor: "#ffff00",
+        inColor: "#ffff88",
+    },
 }
+
+export const oneday = 1000 * 60 * 60 * 24;
+export const today = new Date();
 
 
 export const movementDefinitions = [

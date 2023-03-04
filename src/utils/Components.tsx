@@ -15,9 +15,10 @@ import Typography from '@mui/material/Typography';
 import React from 'react';
 import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { oneday } from '../pages/Stats';
-import { movementDefinitions } from './LoadFile';
+import { oneday, themes, today } from '../utils/Constants';
+import { movementDefinitions } from './Constants';
 import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
+import { DateDiffInDays, MinusDays } from './Utils';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -161,42 +162,20 @@ export function MixedCharts(props: { data: { date: Date, tillNow: number, weight
     </ComposedChart>
   </ResponsiveContainer>
 }
-interface ColorMap { [key: string]: { outColor: string, inColor: string } }
-export const themes: ColorMap = {
-  "Chest": {
-    outColor: "#ff0000",
-    inColor: "#ff8800",
-  },
-  "Legs": {
-    outColor: "#00ff00",
-    inColor: "#00ff88",
-  },
-  "Back": {
-    outColor: "#0000ff",
-    inColor: "#0088ff",
-  },
-  "General": {
-    outColor: "#ff00ff",
-    inColor: "#ff88ff",
-  },
-  "Shoulder": {
-    outColor: "#ffff00",
-    inColor: "#ffff88",
-  },
-}
-export function Activities(props: { records: Record[] }) {
 
-  return <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 7, sm: 8, md: 12 }}>
-    {Array.from(Array(90)).map((_, index) => {
-      const today = new Date();
-      const row = props.records.find((r) => Math.round((today.getTime() - r.date.getTime()) / oneday) === index + 1);
-      console.log(row)
+export function Activities(props: { records: Record[] }) {
+  const totalDays = 42;
+  return <Grid container columns={{ xs: 7, sm: 8, md: 12 }}>
+    {Array.from(Array(totalDays)).map((_, index) => {
+      const weekdayOffset = today.getDay();
+      const row = props.records.find((r) => DateDiffInDays(today, r.date) === totalDays - (index + weekdayOffset - 5));
+      const date = MinusDays(totalDays - (index + weekdayOffset - 5));
       return <Grid item xs={1} sm={4} md={4} key={index}>
         <ActivityRings rings={[
-          // { filledPercentage: 0.25, color: '#00fff8' },
-          { filledPercentage: row ? row.movements[0].weight : 0.75 / 60, color: row ? themes[row.topic].outColor : "#111111" },
           { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: row ? themes[row.topic].inColor : "#555555" },
+          { filledPercentage: row ? row.movements[0].weight : 0.75 / 60, color: row ? themes[row.topic].outColor : "#111111" },
         ]} />
+        <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
       </Grid>
     })}
   </Grid>
