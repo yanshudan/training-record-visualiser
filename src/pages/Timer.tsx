@@ -1,4 +1,4 @@
-import { Button, Paper, TextField } from '@mui/material';
+import { Button, Paper, TextField, Box } from '@mui/material';
 import React from 'react';
 import { setInterval } from 'timers';
 import '../App.css';
@@ -14,7 +14,7 @@ export function TimerPage(props: {
 }) {
   const [A, setA] = React.useState<number>(50);
   const [B, setB] = React.useState<number>(120);
-  return <Paper>
+  return <Box height="100vh" sx={{background:"#121212"}}>
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
       <Clock data={props.clockProps.data} timer={props.timer} setTimer={props.setTimer} />
     </Paper >
@@ -26,7 +26,7 @@ export function TimerPage(props: {
       const now = Date.now();
       props.setClockProps({ data: { start: now, mid: now + A * 1000, end: now + (A + B) * 1000 } })
     }}>start</Button>
-  </Paper>
+  </Box>
 }
 
 export function Clock(props: ClockProps&{timer:NodeJS.Timer|undefined, setTimer: (timer: NodeJS.Timer|undefined) => void}) {

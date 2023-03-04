@@ -4,16 +4,16 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import React from 'react'
-import Paper from '@mui/material/Paper';
+import { Paper, Box } from '@mui/material';
 
 const manuals = [
   {
     title: "Before You Start",
-    content: <div>Record Visualiser doesn't collect or store your data.<br/> We use local storage in your browser to cache the changes.<br/> So your changes are persistent per session but will be lost on refresh.<br/> Please download your record periodically in case your data gets lost on refresh</div>
+    content: <div>Record Visualiser doesn't collect or store your data.<br /> We use local storage in your browser to cache the changes.<br /> So your changes are persistent per session but will be lost on refresh.<br /> Please download your record periodically in case your data gets lost on refresh</div>
   },
   {
     title: "Get Started",
-    content: <div>1. Duplicate and Edit a record on Record Tab<br/> 2. Export as local file</div>
+    content: <div>1. Duplicate and Edit a record on Record Tab<br /> 2. Export as local file</div>
   },
   {
     title: "Exporting Records",
@@ -29,7 +29,7 @@ const manuals = [
   },
   {
     title: "Using Timers",
-    content: <div>Set time  <br/> Start  <br/> Timeout  <br/> Restart</div>
+    content: <div>Set time  <br /> Start  <br /> Timeout  <br /> Restart</div>
   },
   {
     title: "Contribute & Feedback",
@@ -44,7 +44,7 @@ export function ManualPage() {
       setExpanded(isExpanded ? panel : false);
     };
   return (
-    <Paper>
+    <Box height="100vh" sx={{ background: "#121212" }}>
       {manuals.map((manual) => {
         return (
           <Accordion expanded={expanded === manual.title} onChange={handleChange(manual.title)}>
@@ -61,6 +61,6 @@ export function ManualPage() {
           </Accordion>
         )
       })}
-    </Paper>
+    </Box>
   );
 }

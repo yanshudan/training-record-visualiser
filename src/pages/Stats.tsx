@@ -3,7 +3,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PaymentIcon from '@mui/icons-material/Payment';
 import { Alert } from '@mui/material';
 import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
+import { Paper, Box } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -21,7 +21,7 @@ export function StatsPage(props: { rows: Record[] }) {
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
 
-  return (<Paper>
+  return (<Box height="100vh" sx={{ background: "#121212" }}>
     <Paper>
       {renderType !== "rings" && <Stack direction="row" spacing={1} >
         <div>{
@@ -71,7 +71,7 @@ export function StatsPage(props: { rows: Record[] }) {
         </ToggleButton>
       </ToggleButtonGroup>
     </Paper>
-  </Paper>)
+  </Box>)
 }
 
 function filterRows(rows: Record[], selectedType: string, selectedMovements: string[]) {
