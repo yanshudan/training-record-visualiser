@@ -10,5 +10,7 @@ export function MinusDays(n: number) {
     return new Date(ret);
 }
 export function DateDiffInDays(date1: Date, date2: Date) {
-    return Math.round(Math.abs(date1.getTime() - date2.getTime()) / oneday);
+    const fullDate1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+    const fullDate2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+    return Math.round(Math.abs(fullDate1.getTime() - fullDate2.getTime()) / oneday);
 }
