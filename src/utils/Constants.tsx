@@ -1,3 +1,5 @@
+import { MinusDays } from "./Utils";
+
 interface ColorMap { [key: string]: { outColor: string, inColor: string } }
 
 export const themes: ColorMap = {
@@ -25,6 +27,8 @@ export const themes: ColorMap = {
 
 export const oneday = 1000 * 60 * 60 * 24;
 export const today = new Date();
+export const threedaysBefore = MinusDays(3);
+export const threedaysLater= MinusDays(-3);
 
 
 export const movementDefinitions = [

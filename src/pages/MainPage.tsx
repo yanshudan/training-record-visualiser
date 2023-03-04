@@ -13,6 +13,7 @@ import '../App.css';
 import { RecordList } from '../utils/Components';
 import { Record, RecordSerializer } from '../utils/RecordSerializer';
 import { DetectTopic } from '../utils/Utils';
+import { today } from '../utils/Constants';
 
 export function MainPage(props: { rows: Record[], setRows: (records: Record[]) => void }) {
   const [allTypes, setAllTypes] = React.useState<Set<string>>(new Set());
@@ -95,7 +96,7 @@ export function MainPage(props: { rows: Record[], setRows: (records: Record[]) =
           <ToggleButton value="right" onClick={() => {
             const a = document.createElement("a");
             a.href = URL.createObjectURL(new Blob([props.rows.map(row => RecordSerializer.serialize(row)).join("\n\n")], { type: "text/plain" }));
-            a.setAttribute("download", `records-${new Date().toISOString()}.txt`);
+            a.setAttribute("download", `records-${today.toISOString()}.txt`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

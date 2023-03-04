@@ -9,7 +9,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
-import { Activities, MixedCharts, RecordList } from '../utils/Components';
+import { Activities, MyComposedChart, RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart, oneday, today } from '../utils/Constants';
 import { Record } from '../utils/RecordSerializer';
 
@@ -53,7 +53,7 @@ export function StatsPage(props: { rows: Record[] }) {
         </Stack>}
       {renderType === "chart" ?
         (filteredRows.length <= 1 ? <Alert severity="warning">Not enough data to render graph, create more than 2 records containing the same movement to see the chart</Alert> :
-          <MixedCharts data={filteredRows
+          <MyComposedChart data={filteredRows
             .filter(row => row.movements.length > 0 && row.date > new Date(today.getTime() - oneday * 90))
             .reverse()
             .map(row => {

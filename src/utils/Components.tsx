@@ -53,7 +53,7 @@ export function RecordList(props: {
           record={record}
           editable={props.editable}
           onDelete={() => { props.setRecords(props.records.filter((r) => r !== record)) }}
-          onDuplicate={() => { props.setRecords([{ date: new Date(), topic: record.topic, movements: record.movements }, ...props.records,]) }}
+          onDuplicate={() => { props.setRecords([{ date: today, topic: record.topic, movements: record.movements }, ...props.records,]) }}
           onUpdate={(newRecord: Record) => {
             props.setRecords(props.records.map((r) => { return r === record ? newRecord : r }))
           }} />
@@ -65,7 +65,7 @@ export function RecordList(props: {
           const defaultType = movementDefinitions.find(val => val.part === props.selectedTypes[0]);
           const useDefault = props.selectedTypes.length === 0 || defaultType === undefined;
           props.setRecords([{
-            date: new Date(),
+            date: today,
             topic: useDefault ? "Legs" : defaultType.part,
             movements: [{
               name: useDefault ? "深蹲" : defaultType.movements[0],
@@ -141,7 +141,7 @@ export function BottomNavBar(props: { selection: number, setSection: React.Dispa
   </Paper>)
 }
 
-export function MixedCharts(props: { data: { date: Date, tillNow: number, weight: number, amount: number }[] }) {
+export function MyComposedChart(props: { data: { date: Date, tillNow: number, weight: number, amount: number }[] }) {
   return <ResponsiveContainer width="95%" height={350}>
     <ComposedChart data={props.data}>
       <Tooltip />

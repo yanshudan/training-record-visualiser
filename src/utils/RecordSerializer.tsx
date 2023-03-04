@@ -1,3 +1,4 @@
+import { today } from "./Constants";
 import { DetectTopic } from "./Utils";
 
 export class RecordSerializer {
@@ -13,8 +14,8 @@ export class RecordSerializer {
     try {
       let lines = record.split("\n");
       let date = new Date(lines[0].split("//")[0].split(" ")[0]);
-      if (date.getFullYear() === 2001) date.setFullYear(new Date().getFullYear());
-      if (date.getTime() > new Date().getTime()) date.setFullYear(date.getFullYear() - 1);
+      if (date.getFullYear() === 2001) date.setFullYear(today.getFullYear());
+      if (date.getTime() > today.getTime()) date.setFullYear(date.getFullYear() - 1);
       let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
       return { date, movements, topic: DetectTopic(movements) };
     }
@@ -52,7 +53,7 @@ export class RecordSerializer {
   }
 }
 export class Record {
-  date: Date = new Date();
+  date: Date = today;
   topic: string = "General";
   movements: Movement[] = [];
 }
