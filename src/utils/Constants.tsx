@@ -1,7 +1,11 @@
-import { MinusDays } from "./Utils";
-
 interface ColorMap { [key: string]: { outColor: string, inColor: string } }
-
+export interface ClockProps {
+    data: {
+        start: number,
+        mid: number,
+        end: number
+    }
+}
 export const themes: ColorMap = {
     "Chest": {
         outColor: "#99ff00",

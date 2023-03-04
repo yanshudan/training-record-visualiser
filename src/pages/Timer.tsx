@@ -3,21 +3,20 @@ import React from 'react';
 import { setInterval } from 'timers';
 import '../App.css';
 import { Record } from '../utils/RecordSerializer';
-interface ClockProps {
-  data: {
-    start: number,
-    mid: number,
-    end: number
-  }
-}
+import { ClockProps } from '../utils/Constants';
 
-export function TimerPage(props: { rows: Record[] }) {
+export function TimerPage(props: {
+  rows: Record[],
+  clockProps: ClockProps,
+  setClockProps: (clockProps: ClockProps) => void,
+  timer: NodeJS.Timer | undefined,
+  setTimer: (timer: NodeJS.Timer|undefined) => void
+}) {
   const [A, setA] = React.useState<number>(50);
   const [B, setB] = React.useState<number>(120);
-  const [clockProps, setClockProps] = React.useState<ClockProps>({ data: { start: 0, mid: 0, end: 0 } });
   return <Paper>
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center" }}>
-      <Clock data={clockProps.data} />
+      <Clock data={props.clockProps.data} timer={props.timer} setTimer={props.setTimer} />
     </Paper >
     <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center", marginTop: "20px", marginBottom: "50px" }}>
       <TextField label="Train" type="number" onChange={(event) => setA(parseInt(event.target.value))} defaultValue={50} />
@@ -25,21 +24,20 @@ export function TimerPage(props: { rows: Record[] }) {
     </Paper>
     <Button sx={{ transform: "translateX(-50%)", left: "50%", transformOrigin: "center", width: "100px", height: "50px" }} variant="contained" onClick={() => {
       const now = Date.now();
-      setClockProps({ data: { start: now, mid: now + A * 1000, end: now + (A + B) * 1000 } })
+      props.setClockProps({ data: { start: now, mid: now + A * 1000, end: now + (A + B) * 1000 } })
     }}>start</Button>
   </Paper>
 }
 
-export function Clock(props: ClockProps) {
-  const [timerId, setTimerId] = React.useState<NodeJS.Timer>();
+export function Clock(props: ClockProps&{timer:NodeJS.Timer|undefined, setTimer: (timer: NodeJS.Timer|undefined) => void}) {
   const [info, setInfo] = React.useState<string>("Timer");
   React.useEffect(() => {
     const now = Date.now();
-    if (timerId) {
-      clearInterval(JSON.parse(JSON.stringify(timerId))._id);
+    if (props.timer) {
+      clearInterval(JSON.parse(JSON.stringify(props.timer))._id);
     }
     const timer = setClock(props.data.start,props.data.mid,props.data.end);
-    setTimerId(timer);
+    props.setTimer(timer);
   }, [props.data]);
 
   const setClock = (start: number, mid: number, end: number) => {

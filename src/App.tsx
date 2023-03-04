@@ -7,12 +7,15 @@ import { MainPage } from './pages/MainPage';
 import { StatsPage } from './pages/Stats';
 import { BottomNavBar } from './utils/Components';
 import { Record, RecordSerializer } from './utils/RecordSerializer';
-import { sampleRecordsRaw } from './utils/Constants';
+import { ClockProps, sampleRecordsRaw } from './utils/Constants';
 import { ManualPage } from './pages/ManualPage';
 
 function App() {
   const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || sampleRecordsRaw).sort((a, b) => b.date.getTime() - a.date.getTime()));
   const [section, setSection] = React.useState(0);
+  const [clockProps, setClockProps] = React.useState<ClockProps>({ data: { start: 0, mid: 0, end: 0 }});
+  const [timer, setTimer] = React.useState<NodeJS.Timer | undefined>(undefined);
+  
   const setRowsAndStorage = (newRows: Record[]) => {
     setRows(newRows)
     localStorage.setItem("trainingRecords", newRows.map(row => RecordSerializer.serialize(row)).join("\n\n"))
@@ -21,8 +24,8 @@ function App() {
     {
       section === 0 ? <MainPage rows={rows} setRows={setRowsAndStorage} /> :
         section === 1 ?
-          <TimerPage rows={rows} /> :
-          section===2 ?
+          <TimerPage rows={rows} clockProps={clockProps} setClockProps={setClockProps} timer={timer} setTimer={setTimer} /> :
+          section === 2 ?
             <StatsPage rows={rows} /> :
             <ManualPage />
     }
