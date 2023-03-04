@@ -15,10 +15,6 @@ export const themes: ColorMap = {
         outColor: "#0099ff",
         inColor: "#00ffff",
     },
-    "General": {
-        outColor: "#ff00ff",
-        inColor: "#ff88ff",
-    },
     "Shoulder": {
         outColor: "#ffff00",
         inColor: "#ffff88",
@@ -27,8 +23,6 @@ export const themes: ColorMap = {
 
 export const oneday = 1000 * 60 * 60 * 24;
 export const today = new Date();
-export const threedaysBefore = MinusDays(3);
-export const threedaysLater= MinusDays(-3);
 
 
 export const movementDefinitions = [

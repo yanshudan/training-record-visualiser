@@ -54,7 +54,7 @@ export class RecordSerializer {
 }
 export class Record {
   date: Date = today;
-  topic: string = "General";
+  topic: string = "Other";
   movements: Movement[] = [];
 }
 export class Movement {
