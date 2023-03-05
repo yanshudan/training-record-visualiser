@@ -81,3 +81,8 @@ export class BodyStatus {
   fat: number = 1;
   FFMI: number = 1
 }
+export class Plan {
+  planMeta: PlanMeta= new PlanMeta();
+  current: BodyStatus= new BodyStatus();
+  target: BodyStatus= new BodyStatus();
+}

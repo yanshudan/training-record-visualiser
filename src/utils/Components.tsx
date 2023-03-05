@@ -274,28 +274,28 @@ export function Planner(props: {
   return <Paper>
     <Stack direction="row" sx={{ marginTop: "15px" }}>
       <Typography sx={{ margin: "10px" }}>Training Planner</Typography>
-      <TextField label="Height(cm)" type="number" defaultValue={175} onChange={(val) => {
+      <TextField label="Height(cm)" type="number" defaultValue={props.planMeta.height} onChange={(val) => {
         props.setPlanMeta({ ...props.planMeta, height: +val.target.value });
       }}></TextField>
-      <TextField label="FFMI Limit" type="number" defaultValue={25} onChange={(val) => {
+      <TextField label="FFMI Limit" type="number" defaultValue={props.planMeta.FFMIlimit} onChange={(val) => {
         props.setPlanMeta({ ...props.planMeta, FFMIlimit: +val.target.value });
       }}></TextField>
     </Stack>
     <Stack direction="row">
-      <TextField label="Weight(kg)" type="number" defaultValue={70} onChange={(val) => {
+      <TextField label="Weight(kg)" type="number" defaultValue={props.current.weight} onChange={(val) => {
         props.setCurrent({ ...props.current, weight: +val.target.value })
       }}></TextField>
-      <TextField label="Body Fat(%)" type="number" defaultValue={10} onChange={(val) => {
+      <TextField label="Body Fat(%)" type="number" defaultValue={props.current.fat} onChange={(val) => {
         props.setCurrent({ ...props.current, fat: +val.target.value })
       }}></TextField>
       <TextField label="FFMI" type="number" disabled value={props.current.FFMI.toFixed(3)}></TextField>
     </Stack>
     <Stack direction="row" sx={{ marginTop: "15px" }}>
       <TextField label="Target Weight(kg)" type="number" disabled value={props.target.weight.toFixed(1)}></TextField>
-      <TextField label="Target Body Fat(%)" type="number" defaultValue={10} onChange={(val) => {
+      <TextField label="Target Body Fat(%)" type="number" defaultValue={props.target.fat} onChange={(val) => {
         props.setTarget({ ...props.target, fat: +val.target.value })
       }}></TextField>
-      <TextField label="Target FFMI" type="number" defaultValue={22} onChange={(val) => {
+      <TextField label="Target FFMI" type="number" defaultValue={props.target.FFMI} onChange={(val) => {
         props.setTarget({ ...props.target, FFMI: +val.target.value })
       }}></TextField>
     </Stack>
@@ -303,7 +303,7 @@ export function Planner(props: {
       min={0.19}
       max={0.35}
       step={0.01}
-      defaultValue={0.25}
+      defaultValue={props.planMeta.growthRatio}
       sx={{ width: "80%", left: "10%" }}
       onChange={(_, val) => {
         props.setPlanMeta({ ...props.planMeta, growthRatio: +val });

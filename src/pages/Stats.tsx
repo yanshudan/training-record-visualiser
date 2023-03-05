@@ -10,20 +10,35 @@ import React from 'react';
 import '../App.css';
 import { Activities, MyComposedChart, Planner, RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/Constants';
-import { BodyStatus, PlanMeta, Record } from '../utils/RecordSerializer';
+import { BodyStatus, Plan, PlanMeta, Record } from '../utils/RecordSerializer';
 
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
+  const savedPlan: Plan = JSON.parse(localStorage.getItem("plan") || "{}") as Plan;
   const [renderType, setRenderType] = React.useState<"cards" | "chart" | "rings">("rings");
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
-  const [planMeta, setPlanMeta] = React.useState<PlanMeta>(new PlanMeta());
-  const [current, setCurrent] = React.useState<BodyStatus>({ weight: 70, fat: 10, FFMI: 0 });
-  const [target, setTarget] = React.useState<BodyStatus>({ weight: 0, fat: 10, FFMI: 22 });
-//TODO: save plan configs
-//TODO: add daily expectations
+  console.log(savedPlan)
+  const [planMeta, setPlanMetaRaw] = React.useState<PlanMeta>(savedPlan.planMeta || new PlanMeta());
+  const [current, setCurrentRaw] = React.useState<BodyStatus>(savedPlan.current || { weight: 70, fat: 10, FFMI: 0 });
+  const [target, setTargetRaw] = React.useState<BodyStatus>(savedPlan.target || { weight: 0, fat: 10, FFMI: 22 });
+
+  const setPlanMeta = (newPlanMeta: PlanMeta) => {
+    setPlanMetaRaw(newPlanMeta);
+    localStorage.setItem("plan", JSON.stringify({ planMeta: newPlanMeta, current: current, target: target }));
+  }
+  const setCurrent = (newCurrent: BodyStatus) => {
+    setCurrentRaw(newCurrent);
+    localStorage.setItem("plan", JSON.stringify({ planMeta: planMeta, current: newCurrent, target: target }));
+  }
+  const setTarget = (newTarget: BodyStatus) => {
+    setTargetRaw(newTarget);
+    localStorage.setItem("plan", JSON.stringify({ planMeta: planMeta, current: current, target: newTarget }));
+  }
+  //TODO: save plan configs
+  //TODO: add daily expectations
   return (<Box height="150vh" sx={{ background: "#121212" }}>
     <Paper>
       {renderType !== "rings" && <Stack direction="row" spacing={1} >
