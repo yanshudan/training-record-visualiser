@@ -12,6 +12,8 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import React from 'react';
 import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
@@ -233,6 +235,25 @@ export function Planner(props: {
   planMeta: PlanMeta,
   setPlanMeta: (newPlan: PlanMeta) => void
 }) {
+  const [endDate, setEndDate] = React.useState(new Date());
+  const [currentLevel, setCurrentLevel] = React.useState(0);
+  const [targetLevel, setTargetLevel] = React.useState(0);
+
+  React.useEffect(() => {
+    const Month0 = 10 * Math.log(props.planMeta.FFMIlimit - 18) / (-props.planMeta.growthRatio);
+    const MonthA = 10 * Math.log(props.planMeta.FFMIlimit - props.current.FFMI) / (-props.planMeta.growthRatio);
+    const MonthB = 10 * Math.log(props.planMeta.FFMIlimit - props.target.FFMI) / (-props.planMeta.growthRatio);
+    const newTimeRange = (MonthB - MonthA) * 30 + 1;
+    setCurrentLevel(MonthA - Month0);
+    setTargetLevel(MonthB - Month0);
+    // console.log(`this is gonna take ${MonthB - MonthA} months`)
+    setEndDate(new Date(new Date(props.planMeta.start).getTime() + oneday * newTimeRange));
+  }, [
+    props.planMeta.FFMIlimit,
+    props.planMeta.growthRatio,
+    props.planMeta.start,
+    props.current.FFMI,
+    props.target.FFMI]);
 
   React.useEffect(() => {
     let current = props.current;
@@ -284,7 +305,6 @@ export function Planner(props: {
       step={0.01}
       defaultValue={0.25}
       sx={{ width: "80%", left: "10%" }}
-      // getAriaValueText={valuetext}
       onChange={(_, val) => {
         props.setPlanMeta({ ...props.planMeta, growthRatio: +val });
       }}
@@ -294,5 +314,27 @@ export function Planner(props: {
         { value: 0.32, label: "Fast" },
       ]}
     ></Slider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Stack direction="row" sx={{ marginTop: "15px" }}>
+        <DatePicker
+          label="Start from"
+          // value={value}
+          onChange={(newValue) => {
+            // const newDate=new Date(JSON.stringify(newValue));
+            // console.log(JSON.stringify(newValue));
+            console.log(props.planMeta.start);
+            props.setPlanMeta({ ...props.planMeta, start: newValue as Date })
+          }}
+        />
+        <TextField
+          disabled
+          label="End at"
+          value={`${String(endDate.getMonth() + 1).padStart(2, '0')} / ${String(endDate.getDate()).padStart(2, '0')} / ${endDate.getFullYear()}`} />
+      </Stack>
+    </LocalizationProvider>
+    <Stack direction="row" sx={{ marginTop: "15px" }}>
+      <TextField label="Current Level(months)" type="number" disabled value={currentLevel.toFixed(1)}></TextField>
+      <TextField label="Target Level(months)" type="number" disabled value={targetLevel.toFixed(1)}></TextField>
+    </Stack>
   </Paper>
 }

@@ -22,8 +22,9 @@ export function StatsPage(props: { rows: Record[] }) {
   const [planMeta, setPlanMeta] = React.useState<PlanMeta>(new PlanMeta());
   const [current, setCurrent] = React.useState<BodyStatus>({ weight: 70, fat: 10, FFMI: 0 });
   const [target, setTarget] = React.useState<BodyStatus>({ weight: 0, fat: 10, FFMI: 22 });
-  
-  return (<Box height="120vh" sx={{ background: "#121212" }}>
+//TODO: save plan configs
+//TODO: add daily expectations
+  return (<Box height="150vh" sx={{ background: "#121212" }}>
     <Paper>
       {renderType !== "rings" && <Stack direction="row" spacing={1} >
         <div>{
