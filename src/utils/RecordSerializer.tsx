@@ -71,6 +71,7 @@ export enum UnitEnum {
 export class PlanMeta {
   height: number = 170;
   start: Date = today;
+  FFMIlimit: number = 25;
   growthRatio: number = 1;
   strengthRatio: number = 1;
   amountRatio: number = 1;
