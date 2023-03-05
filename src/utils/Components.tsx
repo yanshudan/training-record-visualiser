@@ -110,7 +110,7 @@ export function EditableCard(props: {
             alert(`Invalid input ${value}, error:${e}`)
           }
         }} /> :
-      <CardContent sx={{ "padding-bottom": "0px" }}>
+      <CardContent sx={{ "padding-bottom": "0px" }} onClick={() => { setShowEditor(true) }}>
         <Typography variant="h5" component="div" display="inline-block">
           {props.record.topic}
         </Typography>
@@ -121,16 +121,19 @@ export function EditableCard(props: {
       </CardContent>}
     <Divider />
     <CardActions>
+      <Button size="small" onClick={props.onDuplicate} disabled={!props.editable || showEditor}>Duplicate</Button>
       <Button
         size="small"
         disabled={!props.editable}
         onClick={() => {
           if (!showEditor) {
-            setValue(RecordSerializer.serialize(props.record))
+            const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, reps: [] } })
+            props.onUpdate({ ...props.record, movements: emptyMovements });
           }
-          setShowEditor(!showEditor)
-        }}>{showEditor ? "Confirm" : "Edit"}</Button>
-      <Button size="small" onClick={props.onDuplicate} disabled={!props.editable || showEditor}>Duplicate</Button>
+          else {
+            setShowEditor(false);
+          }
+        }}>{showEditor ? "Confirm" : "Clear Reps"}</Button>
       <Button size="small" onClick={props.onDelete} disabled={!props.editable || showEditor}>Delete</Button>
     </CardActions>
   </Card>
@@ -318,10 +321,7 @@ export function Planner(props: {
       <Stack direction="row" sx={{ marginTop: "15px" }}>
         <DatePicker
           label="Start from"
-          // value={value}
           onChange={(newValue) => {
-            // const newDate=new Date(JSON.stringify(newValue));
-            // console.log(JSON.stringify(newValue));
             console.log(props.planMeta.start);
             props.setPlanMeta({ ...props.planMeta, start: newValue as Date })
           }}
