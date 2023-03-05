@@ -208,21 +208,17 @@ export function Activities(props: {
   planMeta: PlanMeta,
 }) {
   const totalDays = 28;
-  const [expectedFFM, setExpectedFFM] = React.useState(0);
-  const [expectedFFMI, setExpectedFFMI] = React.useState(0);
-  React.useEffect(() => {
-    const planProgress = DateDiffInDays(today, new Date(props.planMeta.start));
-    const planBase = 300 * Math.log(props.planMeta.FFMIlimit - 18) / (-props.planMeta.growthRatio);
-    const newExpectedFFMI = 18 + Math.exp(-props.planMeta.growthRatio * (planProgress + planBase) / 300);
-    setExpectedFFM(newExpectedFFMI * Math.pow(props.planMeta.height / 100, 2));
-    setExpectedFFMI(newExpectedFFMI);
-  }, [props.current, props.target, props.planMeta]);
 
   return <Grid container columns={{ xs: 7, sm: 8, md: 12 }}>
     {Array.from(Array(totalDays + 7)).map((_, index) => {
       const daydiff = totalDays - (index - today.getDay());
       const row = props.records.find((r) => DateDiffInDays(today, r.date) === daydiff);
       const date = MinusDays(daydiff);
+
+      const planProgress = DateDiffInDays(date, new Date(props.planMeta.start));
+      const planBase = 300 * Math.log(props.planMeta.FFMIlimit - props.current.FFMI) / (-props.planMeta.growthRatio);
+      const expectedFFMI = props.planMeta.FFMIlimit - Math.exp(-props.planMeta.growthRatio * (planProgress + planBase) / 300);
+      const expectedFFM = expectedFFMI * Math.pow(props.planMeta.height / 100, 2);
       if (daydiff < 0 || daydiff >= totalDays) {
 
         return today.getDay() !== 6 && <Grid item xs={1} sm={4} md={4} key={index}>
