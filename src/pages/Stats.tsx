@@ -1,17 +1,16 @@
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PaymentIcon from '@mui/icons-material/Payment';
-import { Alert } from '@mui/material';
+import { Alert, Box, Paper } from '@mui/material';
 import Chip from '@mui/material/Chip';
-import { Paper, Box } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
-import { Activities, MyComposedChart, RecordList } from '../utils/Components';
+import { Activities, MyComposedChart, Planner, RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/Constants';
-import { Record } from '../utils/RecordSerializer';
+import { BodyStatus, PlanMeta, Record } from '../utils/RecordSerializer';
 
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
@@ -20,8 +19,11 @@ export function StatsPage(props: { rows: Record[] }) {
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
-
-  return (<Box height="100vh" sx={{ background: "#121212" }}>
+  const [planMeta, setPlanMeta] = React.useState<PlanMeta>(new PlanMeta());
+  const [current, setCurrent] = React.useState<BodyStatus>({ weight: 70, fat: 10, FFMI: 0 });
+  const [target, setTarget] = React.useState<BodyStatus>({ weight: 0, fat: 10, FFMI: 22 });
+  
+  return (<Box height="120vh" sx={{ background: "#121212" }}>
     <Paper>
       {renderType !== "rings" && <Stack direction="row" spacing={1} >
         <div>{
@@ -56,7 +58,18 @@ export function StatsPage(props: { rows: Record[] }) {
           <MyComposedChart filteredRows={filteredRows} />
         ) : renderType === "cards" ?
           <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} /> :
-          <Activities records={props.rows} />}
+          <>
+            <Activities records={props.rows} />
+            <Planner
+              current={current}
+              setCurrent={setCurrent}
+              target={target}
+              setTarget={setTarget}
+              planMeta={planMeta}
+              setPlanMeta={setPlanMeta}
+            />
+          </>
+      }
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >

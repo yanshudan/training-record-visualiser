@@ -67,3 +67,16 @@ export enum UnitEnum {
   kg = 1,
   lb = 2
 }
+
+export class PlanMeta {
+  height: number = 170;
+  start: Date = today;
+  growthRatio: number = 1;
+  strengthRatio: number = 1;
+  amountRatio: number = 1;
+}
+export class BodyStatus {
+  weight: number = 0;
+  fat: number = 1;
+  FFMI: number = 1
+}

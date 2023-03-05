@@ -3,7 +3,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 import TimerIcon from '@mui/icons-material/Timer';
-import { Divider, Grid, Slider, TextField } from '@mui/material';
+import { Divider, Grid, Slider, Stack, TextField } from '@mui/material';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Button from '@mui/material/Button';
@@ -17,7 +17,7 @@ import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis }
 import '../App.css';
 import { oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
-import { Movement, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
+import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
 
 export function MovementComponent(props: Movement) {
@@ -197,7 +197,7 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
 }
 
 export function Activities(props: { records: Record[] }) {
-  const totalDays = 35;
+  const totalDays = 28;
   return <Grid container columns={{ xs: 7, sm: 8, md: 12 }}>
     {Array.from(Array(totalDays + 7)).map((_, index) => {
       const daydiff = totalDays - (index - today.getDay());
@@ -223,4 +223,57 @@ export function Activities(props: { records: Record[] }) {
       </Grid>
     })}
   </Grid>
+}
+
+export function Planner(props: {
+  current: BodyStatus,
+  setCurrent: (newCurrent: BodyStatus) => void,
+  target: BodyStatus,
+  setTarget: (newTarget: BodyStatus) => void,
+  planMeta: PlanMeta,
+  setPlanMeta: (newPlan: PlanMeta) => void
+}) {
+
+  React.useEffect(() => {
+    let current = props.current;
+    const height = props.planMeta.height;
+    let newCurrent = JSON.parse(JSON.stringify(props.current));
+    newCurrent.FFMI = (current.weight * (1 - current.fat / 100) / Math.pow(height / 100, 2) + ((height > 180) ? 0.06 * (height - 180) : 0));
+    props.setCurrent({ ...newCurrent });
+  }, [props.current.fat, props.current.weight, props.planMeta.height]);
+
+  React.useEffect(() => {
+    let target = props.target;
+    const height = props.planMeta.height;
+    let newTarget = JSON.parse(JSON.stringify(props.target));
+    newTarget.weight = ((target.FFMI - ((height > 180) ? 0.06 * (height - 180) : 0)) * Math.pow(height / 100, 2) / (1 - target.fat / 100));
+    props.setTarget({ ...newTarget });
+  }, [props.target.FFMI, props.target.fat, props.planMeta.height]);
+  
+  return <Paper>
+    <Stack direction="row" sx={{ marginTop: "10px" }}>
+      <Typography sx={{ margin: "10px" }}>Training Planner</Typography>
+      <TextField label="Height(cm)" type="number" defaultValue={175} onChange={(val) => {
+        props.setPlanMeta({ ...props.planMeta, height: +val.target.value });
+      }}></TextField>
+    </Stack>
+    <Stack direction="row" sx={{ marginTop: "10px" }}>
+      <TextField label="Weight(kg)" type="number" defaultValue={70} onChange={(val) => {
+        props.setCurrent({ ...props.current, weight: +val.target.value })
+      }}></TextField>
+      <TextField label="Body Fat(%)" type="number" defaultValue={10} onChange={(val) => {
+        props.setCurrent({ ...props.current, fat: +val.target.value })
+      }}></TextField>
+      <TextField label="FFMI" type="number" disabled value={props.current.FFMI.toFixed(3)}></TextField>
+    </Stack>
+    <Stack direction="row" sx={{ marginTop: "10px" }}>
+      <TextField label="Target Weight(kg)" type="number" disabled value={props.target.weight.toFixed(1)}></TextField>
+      <TextField label="Target Body Fat(%)" type="number" defaultValue={10} onChange={(val) => {
+        props.setTarget({ ...props.target, fat: +val.target.value })
+      }}></TextField>
+      <TextField label="Target FFMI" type="number" defaultValue={22} onChange={(val) => {
+        props.setTarget({ ...props.target, FFMI: +val.target.value })
+      }}></TextField>
+    </Stack>
+  </Paper>
 }
