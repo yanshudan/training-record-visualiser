@@ -20,7 +20,6 @@ export function StatsPage(props: { rows: Record[] }) {
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
-  console.log(savedPlan)
   const [planMeta, setPlanMetaRaw] = React.useState<PlanMeta>(savedPlan.planMeta || new PlanMeta());
   const [current, setCurrentRaw] = React.useState<BodyStatus>(savedPlan.current || { weight: 70, fat: 10, FFMI: 0 });
   const [target, setTargetRaw] = React.useState<BodyStatus>(savedPlan.target || { weight: 0, fat: 10, FFMI: 22 });
@@ -39,7 +38,7 @@ export function StatsPage(props: { rows: Record[] }) {
   }
   //TODO: save plan configs
   //TODO: add daily expectations
-  return (<Box height="150vh" sx={{ background: "#121212" }}>
+  return (<Box height="200vh" sx={{ background: "#121212" }}>
     <Paper>
       {renderType !== "rings" && <Stack direction="row" spacing={1} >
         <div>{
@@ -75,7 +74,12 @@ export function StatsPage(props: { rows: Record[] }) {
         ) : renderType === "cards" ?
           <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} /> :
           <>
-            <Activities records={props.rows} />
+            <Activities
+              records={props.rows}
+              current={current}
+              target={target}
+              planMeta={planMeta}
+            />
             <Planner
               current={current}
               setCurrent={setCurrent}

@@ -201,8 +201,23 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
   </Paper>
 }
 
-export function Activities(props: { records: Record[] }) {
+export function Activities(props: {
+  records: Record[],
+  current: BodyStatus,
+  target: BodyStatus,
+  planMeta: PlanMeta,
+}) {
   const totalDays = 28;
+  const [expectedFFM, setExpectedFFM] = React.useState(0);
+  const [expectedFFMI, setExpectedFFMI] = React.useState(0);
+  React.useEffect(() => {
+    const planProgress = DateDiffInDays(today, new Date(props.planMeta.start));
+    const planBase = 300 * Math.log(props.planMeta.FFMIlimit - 18) / (-props.planMeta.growthRatio);
+    const newExpectedFFMI = 18 + Math.exp(-props.planMeta.growthRatio * (planProgress + planBase) / 300);
+    setExpectedFFM(newExpectedFFMI * Math.pow(props.planMeta.height / 100, 2));
+    setExpectedFFMI(newExpectedFFMI);
+  }, [props.current, props.target, props.planMeta]);
+
   return <Grid container columns={{ xs: 7, sm: 8, md: 12 }}>
     {Array.from(Array(totalDays + 7)).map((_, index) => {
       const daydiff = totalDays - (index - today.getDay());
@@ -221,8 +236,16 @@ export function Activities(props: { records: Record[] }) {
       const colorconfig = row ? (themes[row.topic] || { inColor: "#888800", outColor: "#008888" }) : { inColor: "#555555", outColor: "#111111" };
       return <Grid item xs={1} sm={4} md={4} key={index}>
         <ActivityRings rings={[
-          { filledPercentage: row ? row.movements[0].reps.reduce((a, b) => a + b, 0) / 60 : 0.35, color: colorconfig.inColor },
-          { filledPercentage: row ? row.movements[0].weight / 60 : 0.75, color: colorconfig.outColor },
+          {
+            filledPercentage: row ?
+              row.movements[0].reps.reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio) : 0.35,
+            color: colorconfig.inColor
+          },
+          {
+            filledPercentage: row ?
+              row.movements[0].weight / (expectedFFM * props.planMeta.strengthRatio) : 0.75,
+            color: colorconfig.outColor
+          },
         ]} />
         <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
       </Grid>
@@ -249,7 +272,6 @@ export function Planner(props: {
     const newTimeRange = (MonthB - MonthA) * 30 + 1;
     setCurrentLevel(MonthA - Month0);
     setTargetLevel(MonthB - Month0);
-    // console.log(`this is gonna take ${MonthB - MonthA} months`)
     setEndDate(new Date(new Date(props.planMeta.start).getTime() + oneday * newTimeRange));
   }, [
     props.planMeta.FFMIlimit,
@@ -322,7 +344,6 @@ export function Planner(props: {
         <DatePicker
           label="Start from"
           onChange={(newValue) => {
-            console.log(props.planMeta.start);
             props.setPlanMeta({ ...props.planMeta, start: newValue as Date })
           }}
         />
@@ -336,5 +357,33 @@ export function Planner(props: {
       <TextField label="Current Level(months)" type="number" disabled value={currentLevel.toFixed(1)}></TextField>
       <TextField label="Target Level(months)" type="number" disabled value={targetLevel.toFixed(1)}></TextField>
     </Stack>
+    <Slider
+      min={0.1}
+      max={2}
+      step={0.1}
+      onChange={(_, val) => {
+        props.setPlanMeta({ ...props.planMeta, strengthRatio: +val });
+      }}
+      marks={[
+        { value: 0.2, label: "Weak" },
+        { value: 0.6, label: "Average" },
+        { value: 1.0, label: "Strong" },
+      ]}
+      defaultValue={props.planMeta.strengthRatio}
+      sx={{ width: "80%", left: "10%" }} />
+    <Slider
+      min={0.4}
+      max={4}
+      step={0.1}
+      marks={[
+        { value: 1, label: "Strength" },
+        { value: 2, label: "Balance" },
+        { value: 3, label: "Durable" },
+      ]}
+      onChange={(_, val) => {
+        props.setPlanMeta({ ...props.planMeta, amountRatio: +val });
+      }}
+      defaultValue={props.planMeta.amountRatio}
+      sx={{ width: "80%", left: "10%" }} />
   </Paper>
 }
