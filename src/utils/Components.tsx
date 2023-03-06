@@ -22,19 +22,15 @@ import { movementDefinitions } from './Constants';
 import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
 
-export function MovementComponent(props: Movement) {
-  return (<Typography sx={{ mb: 1.5 }}>
-    {props.name + " " + props.weight + "kg " + props.reps.join(" ")}
-  </Typography>)
-}
-
 export function Movements(props: {
   movements: Movement[];
 }) {
   return <div>
     {
       props.movements.map((movement) => {
-        return (<MovementComponent {...movement} />)
+        return (<Typography sx={{ mb: 1.5 }}>
+          {RecordSerializer.serializeMovement(movement)}
+        </Typography>)
       })}
   </div>
 };
@@ -71,9 +67,28 @@ export function RecordList(props: {
             topic: useDefault ? "Legs" : defaultType.part,
             movements: [{
               name: useDefault ? "深蹲" : defaultType.movements[0],
-              weight: 20,
-              reps: [10, 10, 10],
-              unit: UnitEnum.kg
+              sets: [
+                {
+                  weight: 20,
+                  reps: 10,
+                  unit: UnitEnum.kg
+                },
+                {
+                  weight: 20,
+                  reps: 10,
+                  unit: UnitEnum.kg
+                },
+                {
+                  weight: 30,
+                  reps: 10,
+                  unit: UnitEnum.lb
+                },
+                {
+                  weight: 30,
+                  reps: 8,
+                  unit: UnitEnum.lb
+                },
+              ]
             }]
           }, ...props.records,])
           if (useDefault) {
@@ -207,8 +222,8 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
       return {
         date: row.date,
         tillNow: Math.round((today.getTime() - row.date.getTime()) / oneday),
-        weight: row.movements[0].weight,
-        amount: row.movements[0].weight * row.movements[0].reps.reduce((a, b) => a + b, 0) / 50
+        weight: row.movements[0].sets[0].weight,
+        amount: row.movements[0].sets[0].weight * row.movements[0].sets.map(s => s.reps).reduce((a, b) => a + b, 0) / 50
       }
     });
   return <Paper>
@@ -282,12 +297,12 @@ export function Activities(props: {
         <ActivityRings rings={[
           {
             filledPercentage: row ?
-              row.movements[0].reps.reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio) : 0.35,
+              row.movements[0].sets.map(s => s.weight).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio) : 0.35,
             color: colorconfig.inColor
           },
           {
             filledPercentage: row ?
-              row.movements[0].weight / (expectedFFM * props.planMeta.strengthRatio) : 0.75,
+              row.movements[0].sets[0].weight / (expectedFFM * props.planMeta.strengthRatio) : 0.75,
             color: colorconfig.outColor
           },
         ]} />

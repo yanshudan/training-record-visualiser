@@ -4,7 +4,7 @@ import { DetectTopic } from "./Utils";
 export class RecordSerializer {
   static serialize(record: Record): string {
     return `${record.date.toISOString().split("T")[0]} ${record.topic}\n${record.movements.map(
-      movement => `${movement.name} ${movement.weight}${UnitEnum[movement.unit]} ${movement.reps.join(" ")}`
+      movement => this.serializeMovement(movement)
     ).join("\n")}`;
   }
   static deserialize(records: string): Record[] {
@@ -26,6 +26,19 @@ export class RecordSerializer {
 
   }
 
+  static serializeMovement(movement: Movement): string {
+    let ret = movement.name;
+    let lastSet = undefined;
+    for (const trainSet of movement.sets) {
+      if (lastSet === undefined || lastSet.unit !== trainSet.unit || lastSet.weight !== trainSet.weight) {
+        ret += ` ${trainSet.weight}${UnitEnum[trainSet.unit]}`;
+      }
+      ret += ` ${trainSet.reps}`;
+      lastSet = trainSet;
+    }
+    return ret;
+  }
+
   static parseDate(dateStr: string): Date {
     let date = new Date(dateStr);
     if (date.getFullYear() === 2001) date.setFullYear(today.getFullYear());
@@ -36,21 +49,24 @@ export class RecordSerializer {
   static parseMovement(raw: string): Movement | undefined {
     try {
       raw = raw.split("//")[0];
-      const regex = /[\d\.]+(kg|lb)/;
-      const match = raw.match(regex);
-      if (match === null || match.length === 0) {
-        throw new Error("No weight found");
+      const regex = /([\d\.]+)(kg|lb|km|bpm|min)/g;
+      const matches = [...raw.matchAll(regex)];
+      if (matches === null || matches.length === 0) {
+        throw new Error("No valid movement found");
       }
-      let weightWithUnit = match[0];
-      let unit = weightWithUnit.slice(-2) === "kg" ? UnitEnum.kg : UnitEnum.lb;
-      let reps = raw.slice(match.index! + weightWithUnit.length).trim().split(" ");
+      let sets: TrainSet[] = [];
+      for (const [index, match] of matches.entries()) {
+        if (match.index === undefined) continue;
+        const weight = +match[1];
+        const unit = match[2];
+        const end = matches[index + 1] ? matches[index + 1].index : raw.length;
+        const reps = raw.slice(match.index + match[0].length, end).trim().split(" ");
+        sets = [...sets, ...reps.map(r => { return { weight, unit: UnitEnum[unit as keyof typeof UnitEnum], reps: +r } })];
+      }
+
       return {
-        name: raw.slice(0, match.index).trim(), weight: Number(weightWithUnit.slice(0, -2)), unit, reps: reps.filter(r => r !== "").map(rep => {
-          if (rep.indexOf("/") !== -1) {
-            throw new Error("Fractional reps not supported");
-          }
-          return Number(rep)
-        })
+        name: raw.slice(0, matches[0].index).trim(),
+        sets: sets
       };
     }
     catch (e) {
@@ -67,13 +83,19 @@ export class Record {
 }
 export class Movement {
   name: string = "";
+  sets: TrainSet[] = [];
+}
+export class TrainSet {
   weight: number = 0;
   unit: UnitEnum = UnitEnum.kg;
-  reps: number[] = [];
+  reps: number = 0;
 }
 export enum UnitEnum {
   kg = 1,
-  lb = 2
+  lb = 2,
+  km = 3,
+  bpm = 4,
+  min = 5,
 }
 
 export class PlanMeta {
