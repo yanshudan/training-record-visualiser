@@ -17,7 +17,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import React from 'react';
 import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { oneday, themes, today } from '../utils/Constants';
+import { movementToPart, oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
 import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
@@ -284,30 +284,41 @@ export function Activities(props: {
       const planBase = 300 * Math.log(props.planMeta.FFMIlimit - props.current.FFMI) / (-props.planMeta.growthRatio);
       const expectedFFMI = props.planMeta.FFMIlimit - Math.exp(-props.planMeta.growthRatio * (planProgress + planBase) / 300);
       const expectedFFM = expectedFFMI * Math.pow(props.planMeta.height / 100, 2);
-      if (daydiff < 0 || daydiff >= totalDays) {
-
-        return today.getDay() !== 6 && <Grid item xs={1} sm={4} md={4} key={index}>
-          <ActivityRings rings={[
+      const getRings = () => {
+        if (daydiff < 0 || daydiff >= totalDays) {
+          return [
             { filledPercentage: 0.35, color: "#" },
-            { filledPercentage: 0.75, color: "#" },
-          ]} />
-          <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
-        </Grid>
-      }
-      const colorconfig = row ? (themes[row.topic] || { inColor: "#888800", outColor: "#008888" }) : { inColor: "#555555", outColor: "#111111" };
-      return <Grid item xs={1} sm={4} md={4} key={index}>
-        <ActivityRings rings={[
+            { filledPercentage: 0.55, color: "#" },
+            { filledPercentage: 0.75, color: "#" },]
+        }
+        if (row === undefined) {
+          return [
+            { filledPercentage: 0.35, color: "#555555" },
+            { filledPercentage: 0.55, color: "#333333" },
+            { filledPercentage: 0.75, color: "#111111" },]
+        }
+        const colorconfig = themes[row.topic] || { inColor: "#333333", outColor: "#111111" };
+        const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio") || { sets: [] };
+        return [
           {
-            filledPercentage: row ?
-              row.movements[0].sets.map(s => s.weight).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio) : 0.35,
+            filledPercentage:
+              cardioSet.sets.map(s => s.weight).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+            color: cardioSet.sets.length > 0 ? "#5ec0de" : "#333333"
+          },
+          {
+            filledPercentage:
+            row.movements[0].sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
             color: colorconfig.inColor
           },
           {
-            filledPercentage: row ?
-              row.movements[0].sets[0].weight / (expectedFFM * props.planMeta.strengthRatio) : 0.75,
+            filledPercentage:
+            row.movements[0].sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
             color: colorconfig.outColor
           },
-        ]} />
+        ];
+      }
+      return <Grid item xs={1} sm={4} md={4} key={index}>
+        <ActivityRings rings={getRings()} />
         <Typography sx={{ position: "relative", transform: "translateX(20%)", top: "-30%", color: "#555555" }}>{`${date.getMonth() + 1}/${date.getDate()}`}</Typography>
       </Grid>
     })}

@@ -104,10 +104,15 @@ export const sampleRecordsRaw = `2023-02-16 Chest
 卧推 47.5kg 12 12 11 9
 
 2023-02-25 Cardio
+卧推 47.5kg 12 12 11 9
 跑步 5km 15 20
 
 2023-02-26 Back
-下拉 21.25kg 12 12 12 12`
+下拉 21.25kg 12 12 12 12
+
+2023-02-28 Legs
+深蹲 40kg 12 12 30kg 11 11 
+跑步 5km 15 20 180bpm 5`
 
 export const movementToPart = new Map<string, string>();
 
