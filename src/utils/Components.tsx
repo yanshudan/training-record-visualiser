@@ -19,7 +19,7 @@ import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis }
 import '../App.css';
 import { movementToPart, oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
-import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
+import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, TrainSet, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
 
 export function Movements(props: {
@@ -110,7 +110,7 @@ export function EditableCard(props: {
   onUpdate: (record: Record, updateMeta: boolean) => void
 }) {
   const [showEditor, setShowEditor] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState<string>(RecordSerializer.serialize(props.record));
   const [openClearReps, setOpenClearReps] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
 
@@ -123,10 +123,9 @@ export function EditableCard(props: {
         onChange={(newVal) => {
           setValue(newVal.target.value)
           try {
-            const newRecord = RecordSerializer.deserialize(newVal.target.value)[0]
-            props.onUpdate(newRecord, false);
+            const newRecord = RecordSerializer.parseRecord(newVal.target.value)
+            newRecord && props.onUpdate(newRecord, false);
           } catch (e) {
-            alert(`Invalid input ${value}, error:${e}`)
           }
         }} /> :
       <CardContent sx={{ "padding-bottom": "0px" }} onClick={() => { setShowEditor(true) }}>
@@ -161,7 +160,7 @@ export function EditableCard(props: {
         onClose={(confirmed: boolean) => {
           setOpenClearReps(false);
           if (!confirmed) return;
-          const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, reps: [] } })
+          const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, sets: [{ ...(movement.sets[0]), reps: 0 }] } })
           props.onUpdate({ ...props.record, movements: emptyMovements }, false);
 
         }} />
@@ -298,7 +297,8 @@ export function Activities(props: {
             { filledPercentage: 0.75, color: "#111111" },]
         }
         const colorconfig = themes[row.topic] || { inColor: "#457457", outColor: "#754754" };
-        const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio") || { sets: [] };
+        const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio") || { sets: [new TrainSet()] };
+        const strengthSet = row.movements.find((m: Movement) => movementToPart.get(m.name) !== "Cardio") || { sets: [new TrainSet()] };
         return [
           {
             filledPercentage:
@@ -307,12 +307,12 @@ export function Activities(props: {
           },
           {
             filledPercentage:
-              row.movements[0].sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+              strengthSet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
             color: colorconfig.inColor
           },
           {
             filledPercentage:
-              row.movements[0].sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
+              strengthSet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
             color: colorconfig.outColor
           },
         ];

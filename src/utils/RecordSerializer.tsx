@@ -12,7 +12,7 @@ export class RecordSerializer {
   }
   static parseRecord(record: string): Record | undefined {
     try {
-      let lines = record.split("\n");
+      let lines = record.split("\n").filter(line => line !== "");
       let [dateStr, topic] = lines[0].split("//")[0].split(" ");
       const date = this.parseDate(dateStr);
 
@@ -49,10 +49,14 @@ export class RecordSerializer {
   static parseMovement(raw: string): Movement | undefined {
     try {
       raw = raw.split("//")[0];
+      if (raw === "") return undefined;
       const regex = /([\d\.]+)(kg|lb|km|bpm|min)/g;
       const matches = [...raw.matchAll(regex)];
       if (matches === null || matches.length === 0) {
-        throw new Error("No valid movement found");
+        return {
+          name: raw.trim(),
+          sets: []
+        }
       }
       let sets: TrainSet[] = [];
       for (const [index, match] of matches.entries()) {
