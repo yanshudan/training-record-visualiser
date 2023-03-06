@@ -3,7 +3,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 import TimerIcon from '@mui/icons-material/Timer';
-import { Dialog, DialogContent, DialogTitle, Divider, Grid, Slider, Stack, TextField, DialogActions, DialogContentText } from '@mui/material';
+import { Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Grid, Slider, Stack, TextField } from '@mui/material';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Button from '@mui/material/Button';
@@ -21,7 +21,6 @@ import { oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
 import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
-import { title } from 'process';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -342,7 +341,8 @@ export function Planner(props: {
   }, [props.target.FFMI, props.target.fat, props.planMeta.height]);
 
   return <Paper>
-    <Stack direction="row" sx={{ marginTop: "15px" }}>
+    <Box sx={{ padding: "10px" }} />
+    <Stack direction="row">
       <Typography sx={{ margin: "10px" }}>Training Planner</Typography>
       <TextField label="Height(cm)" type="number" defaultValue={props.planMeta.height} onChange={(val) => {
         props.setPlanMeta({ ...props.planMeta, height: +val.target.value });
@@ -402,6 +402,11 @@ export function Planner(props: {
       <TextField label="Current Level(months)" type="number" disabled value={currentLevel.toFixed(1)}></TextField>
       <TextField label="Target Level(months)" type="number" disabled value={targetLevel.toFixed(1)}></TextField>
     </Stack>
+  </Paper>
+}
+
+export function ActivitySliders(props: { planMeta: PlanMeta, setPlanMeta: (planMeta: PlanMeta) => void }) {
+  return <>
     <Slider
       min={0.1}
       max={2}
@@ -411,8 +416,8 @@ export function Planner(props: {
       }}
       marks={[
         { value: 0.2, label: "Weak" },
-        { value: 0.6, label: "Average" },
-        { value: 1.0, label: "Strong" },
+        { value: 1.0, label: "Average" },
+        { value: 1.8, label: "Strong" },
       ]}
       defaultValue={props.planMeta.strengthRatio}
       sx={{ width: "80%", left: "10%" }} />
@@ -430,5 +435,5 @@ export function Planner(props: {
       }}
       defaultValue={props.planMeta.amountRatio}
       sx={{ width: "80%", left: "10%" }} />
-  </Paper>
+  </>
 }

@@ -1,3 +1,4 @@
+import AddchartIcon from '@mui/icons-material/Addchart';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PaymentIcon from '@mui/icons-material/Payment';
@@ -8,15 +9,14 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
-import { Activities, MyComposedChart, Planner, RecordList } from '../utils/Components';
+import { Activities, ActivitySliders, MyComposedChart, Planner, RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/Constants';
 import { BodyStatus, Plan, PlanMeta, Record } from '../utils/RecordSerializer';
-
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
   const savedPlan: Plan = JSON.parse(localStorage.getItem("plan") || "{}") as Plan;
-  const [renderType, setRenderType] = React.useState<"cards" | "chart" | "rings">("rings");
+  const [renderType, setRenderType] = React.useState<"cards" | "chart" | "rings" | "plan">("rings");
   const [selectedType, setSelectedType] = React.useState<string>("Chest");
   const [selectedMovements, setSelectedMovements] = React.useState<string[]>(["卧推"]);
   const [filteredRows, setFilteredRows] = React.useState<Record[]>(filterRows(props.rows, selectedType, selectedMovements));
@@ -40,7 +40,7 @@ export function StatsPage(props: { rows: Record[] }) {
   //TODO: add daily expectations
   return (<Box height="200vh" sx={{ background: "#121212" }}>
     <Paper>
-      {renderType !== "rings" && <Stack direction="row" spacing={1} >
+      {renderType !== "rings" && renderType !== "plan" && <Stack direction="row" spacing={1} >
         <div>{
           allTypes.map((type) => {
             return <Chip label={type} onClick={() => {
@@ -51,7 +51,7 @@ export function StatsPage(props: { rows: Record[] }) {
           })}
         </div>
       </Stack>}
-      {renderType !== "rings" &&
+      {renderType !== "rings" && renderType !== "plan" &&
         <Stack sx={{ marginTop: "10px", marginBottom: "20px" }}>
           <div>{
             movementDefinitions.filter((definition) => definition.part === selectedType)[0].movements.map((name) => {
@@ -68,31 +68,35 @@ export function StatsPage(props: { rows: Record[] }) {
             })
           }</div>
         </Stack>}
-      {renderType === "chart" ?
+      {renderType === "chart" &&
         (filteredRows.length <= 1 ? <Alert severity="warning">Not enough data to render graph, create more than 2 records containing the same movement to see the chart</Alert> :
-          <MyComposedChart filteredRows={filteredRows} />
-        ) : renderType === "cards" ?
-          <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} /> :
-          <>
-            <Activities
-              records={props.rows}
-              current={current}
-              target={target}
-              planMeta={planMeta}
-            />
-            <Planner
-              current={current}
-              setCurrent={setCurrent}
-              target={target}
-              setTarget={setTarget}
-              planMeta={planMeta}
-              setPlanMeta={setPlanMeta}
-            />
-          </>
-      }
+          <MyComposedChart filteredRows={filteredRows} />)}
+      {renderType === "cards" &&
+        <RecordList records={filteredRows} selectedTypes={allTypes} setRecords={() => { }} editable={false} />}
+      {renderType === "rings" && <>
+        <Activities
+          records={props.rows}
+          current={current}
+          target={target}
+          planMeta={planMeta} />
+        <ActivitySliders
+          planMeta={planMeta}
+          setPlanMeta={setPlanMeta} />
+      </>}
+      {renderType === "plan" &&
+        <Planner
+          current={current}
+          setCurrent={setCurrent}
+          target={target}
+          setTarget={setTarget}
+          planMeta={planMeta}
+          setPlanMeta={setPlanMeta} />}
     </Paper>
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
+        <ToggleButton value="planner" selected={renderType === "plan"} onClick={() => setRenderType("plan")}>
+          <AddchartIcon />
+        </ToggleButton>
         <ToggleButton value="left" selected={renderType === "rings"} onClick={() => setRenderType("rings")}>
           <CalendarMonthIcon />
         </ToggleButton>
