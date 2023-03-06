@@ -3,7 +3,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 import TimerIcon from '@mui/icons-material/Timer';
-import { Divider, Grid, Slider, Stack, TextField } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Divider, Grid, Slider, Stack, TextField, DialogActions, DialogContentText } from '@mui/material';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Button from '@mui/material/Button';
@@ -21,6 +21,7 @@ import { oneday, themes, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
 import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
+import { title } from 'process';
 
 export function MovementComponent(props: Movement) {
   return (<Typography sx={{ mb: 1.5 }}>
@@ -86,6 +87,7 @@ export function RecordList(props: {
     </Card>}
   </div>)
 }
+
 export function EditableCard(props: {
   record: Record,
   editable: boolean,
@@ -95,6 +97,9 @@ export function EditableCard(props: {
 }) {
   const [showEditor, setShowEditor] = React.useState(false);
   const [value, setValue] = React.useState("");
+  const [openClearReps, setOpenClearReps] = React.useState(false);
+  const [openDelete, setOpenDelete] = React.useState(false);
+
   return <Card sx={{ "border-radius": "10px", "margin-bottom": "1px" }} variant="outlined">
     {showEditor ?
       <TextField
@@ -127,17 +132,61 @@ export function EditableCard(props: {
         disabled={!props.editable}
         onClick={() => {
           if (!showEditor) {
-            const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, reps: [] } })
-            props.onUpdate({ ...props.record, movements: emptyMovements });
+            setOpenClearReps(true);
           }
           else {
             setShowEditor(false);
           }
         }}>{showEditor ? "Confirm" : "Clear Reps"}</Button>
-      <Button size="small" onClick={props.onDelete} disabled={!props.editable || showEditor}>Delete</Button>
+      <ConfirmDialog
+        open={openClearReps}
+        title="Clear Reps"
+        content="Are you sure you want to clear all reps?"
+        onClose={(confirmed: boolean) => {
+          setOpenClearReps(false);
+          if (!confirmed) return;
+          const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, reps: [] } })
+          props.onUpdate({ ...props.record, movements: emptyMovements });
+
+        }} />
+      <Button size="small" onClick={() => {
+        setOpenDelete(true);
+      }} disabled={!props.editable || showEditor}>Delete</Button>
+      <ConfirmDialog
+        open={openDelete}
+        title="Delete Record"
+        content="Are you sure you want to delete this record?"
+        onClose={(confirmed: boolean) => {
+          setOpenDelete(false)
+          if (!confirmed) return;
+          props.onDelete()
+        }} />
     </CardActions>
   </Card>
 }
+
+export function ConfirmDialog(props: { open: boolean, onClose: (confirmed: boolean) => void, title: string, content: string }) {
+  return <Dialog
+    open={props.open}
+    onClose={() => props.onClose(false)}
+    aria-labelledby="alert-dialog-title"
+    aria-describedby="alert-dialog-description"
+  >
+    <DialogTitle id="alert-dialog-title">
+      {props.title}
+    </DialogTitle>
+    <DialogContent>
+      <DialogContentText id="alert-dialog-description">
+        {props.content}
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={() => props.onClose(true)}>Confirm</Button>
+      <Button onClick={() => props.onClose(false)} autoFocus> Cancel </Button>
+    </DialogActions>
+  </Dialog>
+}
+
 export function BottomNavBar(props: { selection: number, setSection: React.Dispatch<React.SetStateAction<number>> }) {
   return (<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
     <BottomNavigation showLabels value={props.selection} >
