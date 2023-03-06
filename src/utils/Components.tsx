@@ -52,8 +52,8 @@ export function RecordList(props: {
           editable={props.editable}
           onDelete={() => { props.setRecords(props.records.filter((r) => r !== record)) }}
           onDuplicate={() => { props.setRecords([{ date: today, topic: record.topic, movements: record.movements }, ...props.records,]) }}
-          onUpdate={(newRecord: Record) => {
-            props.setRecords(props.records.map((r) => { return r === record ? newRecord : r }))
+          onUpdate={(newRecord: Record, updateMeta: boolean) => {
+            props.setRecords(props.records.map((r) => { return r === record ? (updateMeta ? newRecord : { ...newRecord, topic: record.topic, date: record.date }) : r }))
           }} />
       </div>)
     })}
@@ -107,7 +107,7 @@ export function EditableCard(props: {
   editable: boolean,
   onDelete: () => void,
   onDuplicate: () => void,
-  onUpdate: (record: Record) => void
+  onUpdate: (record: Record, updateMeta: boolean) => void
 }) {
   const [showEditor, setShowEditor] = React.useState(false);
   const [value, setValue] = React.useState("");
@@ -124,7 +124,7 @@ export function EditableCard(props: {
           setValue(newVal.target.value)
           try {
             const newRecord = RecordSerializer.deserialize(newVal.target.value)[0]
-            props.onUpdate(newRecord);
+            props.onUpdate(newRecord, false);
           } catch (e) {
             alert(`Invalid input ${value}, error:${e}`)
           }
@@ -150,6 +150,8 @@ export function EditableCard(props: {
           }
           else {
             setShowEditor(false);
+            const newRecord = RecordSerializer.deserialize(value)[0]
+            props.onUpdate(newRecord, true);
           }
         }}>{showEditor ? "Confirm" : "Clear Reps"}</Button>
       <ConfirmDialog
@@ -160,7 +162,7 @@ export function EditableCard(props: {
           setOpenClearReps(false);
           if (!confirmed) return;
           const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, reps: [] } })
-          props.onUpdate({ ...props.record, movements: emptyMovements });
+          props.onUpdate({ ...props.record, movements: emptyMovements }, false);
 
         }} />
       <Button size="small" onClick={() => {
@@ -223,7 +225,7 @@ export function MyComposedChart(props: { filteredRows: Record[] }) {
         date: row.date,
         tillNow: Math.round((today.getTime() - row.date.getTime()) / oneday),
         weight: row.movements[0].sets[0].weight,
-        amount: row.movements[0].sets[0].weight * row.movements[0].sets.map(s => s.reps).reduce((a, b) => a + b, 0) / 50
+        amount: row.movements[0].sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / 50
       }
     });
   return <Paper>
