@@ -17,6 +17,7 @@ export class RecordSerializer {
       const date = this.parseDate(dateStr);
 
       let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
+      if(movements.length===0) return undefined;
       return { date, movements, topic: topic || DetectTopic(movements) || "General" };
     }
     catch (e) {
