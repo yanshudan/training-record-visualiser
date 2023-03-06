@@ -1,7 +1,7 @@
-import AddchartIcon from '@mui/icons-material/Addchart';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PaymentIcon from '@mui/icons-material/Payment';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import { Alert, Box, Paper } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -12,6 +12,7 @@ import '../App.css';
 import { Activities, ActivitySliders, MyComposedChart, Planner, RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/Constants';
 import { BodyStatus, Plan, PlanMeta, Record } from '../utils/RecordSerializer';
+
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
   const allTypes = Array.from(allTypesSet.values());
@@ -95,10 +96,10 @@ export function StatsPage(props: { rows: Record[] }) {
     <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
       <ToggleButtonGroup exclusive={true} aria-label="text alignment" >
         <ToggleButton value="planner" selected={renderType === "plan"} onClick={() => setRenderType("plan")}>
-          <AddchartIcon />
+          <CalendarMonthIcon />
         </ToggleButton>
         <ToggleButton value="left" selected={renderType === "rings"} onClick={() => setRenderType("rings")}>
-          <CalendarMonthIcon />
+          <TrackChangesIcon />
         </ToggleButton>
         <ToggleButton value="center" selected={renderType === "chart"} onClick={() => setRenderType("chart")}>
           <AutoGraphIcon />
