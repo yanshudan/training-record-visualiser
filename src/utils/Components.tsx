@@ -303,7 +303,7 @@ export function Activities(props: {
           {
             filledPercentage:
               cardioSet.sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
-            color: cardioSet.sets.length > 0 ? "#ff5000" : "#333333"
+            color: (cardioSet.sets.length > 0 && cardioSet.sets[0].weight > 0) ? "#ff5000" : "#333333"
           },
           {
             filledPercentage:
