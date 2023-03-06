@@ -12,7 +12,6 @@ import React from 'react';
 import '../App.css';
 import { RecordList } from '../utils/Components';
 import { Record, RecordSerializer } from '../utils/RecordSerializer';
-import { DetectTopic } from '../utils/Utils';
 import { today } from '../utils/Constants';
 
 export function MainPage(props: {
@@ -47,13 +46,7 @@ export function MainPage(props: {
     reader.onload = async (event) => {
       if (event.target === null) return;
       const text = event.target.result as string;
-      const newRows = RecordSerializer.deserialize(text).reverse().map((record) => {
-        return {
-          date: record.date,
-          topic: DetectTopic(record.movements) as string,
-          movements: record.movements
-        }
-      })
+      const newRows = RecordSerializer.deserialize(text).reverse();
       props.setRows(newRows)
     }
     if (event.target === null || event.target.files === null) return;

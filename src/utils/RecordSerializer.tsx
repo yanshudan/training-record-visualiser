@@ -3,7 +3,7 @@ import { DetectTopic } from "./Utils";
 
 export class RecordSerializer {
   static serialize(record: Record): string {
-    return `${record.date.toISOString().split("T")[0]}\n${record.movements.map(
+    return `${record.date.toISOString().split("T")[0]} ${record.topic}\n${record.movements.map(
       movement => `${movement.name} ${movement.weight}${UnitEnum[movement.unit]} ${movement.reps.join(" ")}`
     ).join("\n")}`;
   }
@@ -13,11 +13,11 @@ export class RecordSerializer {
   static parseRecord(record: string): Record | undefined {
     try {
       let lines = record.split("\n");
-      let date = new Date(lines[0].split("//")[0].split(" ")[0]);
-      if (date.getFullYear() === 2001) date.setFullYear(today.getFullYear());
-      if (date.getTime() > today.getTime()) date.setFullYear(date.getFullYear() - 1);
+      let [dateStr, topic] = lines[0].split("//")[0].split(" ");
+      const date = this.parseDate(dateStr);
+
       let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
-      return { date, movements, topic: DetectTopic(movements) };
+      return { date, movements, topic: topic || DetectTopic(movements) || "General" };
     }
     catch (e) {
       console.log(`Invalid record:${record} ${e}`);
@@ -25,6 +25,14 @@ export class RecordSerializer {
     }
 
   }
+
+  static parseDate(dateStr: string): Date {
+    let date = new Date(dateStr);
+    if (date.getFullYear() === 2001) date.setFullYear(today.getFullYear());
+    if (date.getTime() > today.getTime()) date.setFullYear(date.getFullYear() - 1);
+    return date;
+  }
+
   static parseMovement(raw: string): Movement | undefined {
     try {
       raw = raw.split("//")[0];
@@ -82,7 +90,7 @@ export class BodyStatus {
   FFMI: number = 1
 }
 export class Plan {
-  planMeta: PlanMeta= new PlanMeta();
-  current: BodyStatus= new BodyStatus();
-  target: BodyStatus= new BodyStatus();
+  planMeta: PlanMeta = new PlanMeta();
+  current: BodyStatus = new BodyStatus();
+  target: BodyStatus = new BodyStatus();
 }
