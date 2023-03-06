@@ -297,22 +297,22 @@ export function Activities(props: {
             { filledPercentage: 0.55, color: "#333333" },
             { filledPercentage: 0.75, color: "#111111" },]
         }
-        const colorconfig = themes[row.topic] || { inColor: "#333333", outColor: "#111111" };
+        const colorconfig = themes[row.topic] || { inColor: "#457457", outColor: "#754754" };
         const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio") || { sets: [] };
         return [
           {
             filledPercentage:
-              cardioSet.sets.map(s => s.weight).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
-            color: cardioSet.sets.length > 0 ? "#5ec0de" : "#333333"
+              cardioSet.sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+            color: cardioSet.sets.length > 0 ? "#ff5000" : "#333333"
           },
           {
             filledPercentage:
-            row.movements[0].sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+              row.movements[0].sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
             color: colorconfig.inColor
           },
           {
             filledPercentage:
-            row.movements[0].sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
+              row.movements[0].sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
             color: colorconfig.outColor
           },
         ];

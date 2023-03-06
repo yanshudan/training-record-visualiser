@@ -23,6 +23,10 @@ export const themes: ColorMap = {
         outColor: "#ffff00",
         inColor: "#ffff88",
     },
+    "Cardio": {
+        inColor: "#333333",
+        outColor: "#111111"
+    }
 }
 
 export const oneday = 1000 * 60 * 60 * 24;
