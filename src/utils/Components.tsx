@@ -302,7 +302,7 @@ export function Activities(props: {
         return [
           {
             filledPercentage:
-              cardioSet.sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+              cardioSet.sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.expectedCalory),
             color: (cardioSet.sets.length > 0 && cardioSet.sets[0].weight > 0) ? "#ff5000" : "#333333"
           },
           {
@@ -462,6 +462,20 @@ export function ActivitySliders(props: { planMeta: PlanMeta, setPlanMeta: (planM
         props.setPlanMeta({ ...props.planMeta, amountRatio: +val });
       }}
       defaultValue={props.planMeta.amountRatio}
+      sx={{ width: "80%", left: "10%" }} />
+    <Slider
+      min={0.2}
+      max={40}
+      step={0.2}
+      marks={[
+        { value: 1, label: "Low" },
+        { value: 20, label: "Mid" },
+        { value: 30, label: "High" },
+      ]}
+      onChange={(_, val) => {
+        props.setPlanMeta({ ...props.planMeta, expectedCalory: +val });
+      }}
+      defaultValue={props.planMeta.expectedCalory}
       sx={{ width: "80%", left: "10%" }} />
   </>
 }

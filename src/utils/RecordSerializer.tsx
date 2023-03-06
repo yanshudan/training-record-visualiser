@@ -107,9 +107,10 @@ export class PlanMeta {
   height: number = 170;
   start: Date = today;
   FFMIlimit: number = 25;
-  growthRatio: number = 1;
+  growthRatio: number = 0.3;
   strengthRatio: number = 1;
   amountRatio: number = 1;
+  expectedCalory: number = 10;
 }
 export class BodyStatus {
   weight: number = 0;
