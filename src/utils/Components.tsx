@@ -51,7 +51,18 @@ export function RecordList(props: {
           record={record}
           editable={props.editable}
           onDelete={() => { props.setRecords(props.records.filter((r) => r !== record)) }}
-          onDuplicate={() => { props.setRecords([{ date: today, topic: record.topic, movements: record.movements }, ...props.records,]) }}
+          onDuplicateEmpty={() => {
+            props.setRecords([{
+              date: today,
+              topic: record.topic,
+              movements: record.movements.map((movement: Movement) => {
+                return {
+                  ...movement,
+                  sets: [{ ...(movement.sets[0]), reps: 0 }]
+                }
+              })
+            }, ...props.records,])
+          }}
           onUpdate={(newRecord: Record, updateMeta: boolean) => {
             props.setRecords(props.records.map((r) => { return r === record ? (updateMeta ? newRecord : { ...newRecord, topic: record.topic, date: record.date }) : r }))
           }} />
@@ -106,7 +117,7 @@ export function EditableCard(props: {
   record: Record,
   editable: boolean,
   onDelete: () => void,
-  onDuplicate: () => void,
+  onDuplicateEmpty: () => void,
   onUpdate: (record: Record, updateMeta: boolean) => void
 }) {
   const [showEditor, setShowEditor] = React.useState(false);
@@ -139,31 +150,20 @@ export function EditableCard(props: {
       </CardContent>}
     <Divider />
     <CardActions>
-      <Button size="small" onClick={props.onDuplicate} disabled={!props.editable || showEditor}>Duplicate</Button>
       <Button
         size="small"
         disabled={!props.editable}
         onClick={() => {
           if (!showEditor) {
-            setOpenClearReps(true);
+            setShowEditor(true);
           }
           else {
             setShowEditor(false);
-            const newRecord = RecordSerializer.deserialize(value)[0]
-            props.onUpdate(newRecord, true);
+            const newRecord = RecordSerializer.parseRecord(value);
+            newRecord && props.onUpdate(newRecord, true);
           }
-        }}>{showEditor ? "Confirm" : "Clear Reps"}</Button>
-      <ConfirmDialog
-        open={openClearReps}
-        title="Clear Reps"
-        content="Are you sure you want to clear all reps?"
-        onClose={(confirmed: boolean) => {
-          setOpenClearReps(false);
-          if (!confirmed) return;
-          const emptyMovements = props.record.movements.map((movement: Movement) => { return { ...movement, sets: [{ ...(movement.sets[0]), reps: 0 }] } })
-          props.onUpdate({ ...props.record, movements: emptyMovements }, false);
-
-        }} />
+        }}>{showEditor ? "Confirm" : "Edit"}</Button>
+      <Button size="small" onClick={props.onDuplicateEmpty} disabled={!props.editable || showEditor}>Start Another</Button>
       <Button size="small" onClick={() => {
         setOpenDelete(true);
       }} disabled={!props.editable || showEditor}>Delete</Button>
