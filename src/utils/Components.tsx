@@ -156,6 +156,7 @@ export function EditableCard(props: {
         onClick={() => {
           if (!showEditor) {
             setShowEditor(true);
+            setValue(RecordSerializer.serialize(props.record));
           }
           else {
             setShowEditor(false);
