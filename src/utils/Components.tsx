@@ -17,7 +17,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import React from 'react';
 import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
-import { movementToPart, oneday, themes, today } from '../utils/Constants';
+import { movementToPart, oneday, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
 import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, TrainSet, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
@@ -71,13 +71,13 @@ export function RecordList(props: {
     {showPlaceHolderCard && <Card sx={{ "border-radius": "10px", "margin-bottom": "1px", height: "200px" }} variant="outlined">
       <CardContent sx={{ "padding-bottom": "0px" }}>
         <Typography variant="h5" component="div" display="inline-block" onClick={() => {
-          const defaultType = movementDefinitions.find(val => val.part === props.selectedTypes[0]);
-          const useDefault = props.selectedTypes.length === 0 || defaultType === undefined;
+          const firstSelectedPart = movementDefinitions.get(movementToPart.get(props.selectedTypes[0]) || "");
+          const useDefault = props.selectedTypes.length === 0 || firstSelectedPart === undefined;
           props.setRecords([{
             date: today,
-            topic: useDefault ? "Legs" : defaultType.part,
+            topic: useDefault ? "Legs" : props.selectedTypes[0],
             movements: [{
-              name: useDefault ? "深蹲" : defaultType.movements[0],
+              name: useDefault ? "深蹲" : firstSelectedPart.movements[0],
               sets: [
                 {
                   weight: 20,
@@ -140,6 +140,7 @@ export function EditableCard(props: {
           }
         }} /> :
       <CardContent sx={{ "padding-bottom": "0px" }} onClick={() => { setShowEditor(true) }}>
+        <Typography sx={{ position: "fixed", right: "20px", width: "fit-content", color: "#555555" }}>Tap the card to edit</Typography>
         <Typography variant="h5" component="div" display="inline-block">
           {props.record.topic}
         </Typography>
@@ -289,32 +290,54 @@ export function Activities(props: {
           return [
             { filledPercentage: 0.35, color: "#" },
             { filledPercentage: 0.55, color: "#" },
+            { filledPercentage: 0.75, color: "#" },
+            { filledPercentage: 0.55, color: "#" },
             { filledPercentage: 0.75, color: "#" },]
         }
         if (row === undefined) {
           return [
             { filledPercentage: 0.35, color: "#555555" },
             { filledPercentage: 0.55, color: "#333333" },
+            { filledPercentage: 0.75, color: "#111111" },
+            { filledPercentage: 0.55, color: "#333333" },
             { filledPercentage: 0.75, color: "#111111" },]
         }
-        const colorconfig = themes[row.topic] || { inColor: "#457457", outColor: "#754754" };
-        const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio") || { sets: [new TrainSet()] };
-        const strengthSet = row.movements.find((m: Movement) => movementToPart.get(m.name) !== "Cardio") || { sets: [new TrainSet()] };
+        // const colorconfig = movementDefinitions[row.topic] || { inColor: "#457457", outColor: "#754754" };
+        const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio");
+        const bodySet = row.movements.find((m: Movement) => {
+          const part = movementToPart.get(m.name)
+          return part === "Legs" || part === "Chest" || part === "Back";
+        });
+        const armSet = row.movements.find((m: Movement) => {
+          const part = movementToPart.get(m.name)
+          return part === "Bicep" || part === "Tricep";
+        });
+        console.log(armSet)
         return [
           {
-            filledPercentage:
+            filledPercentage: cardioSet === undefined ? 0.75 :
               cardioSet.sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.expectedCalory),
-            color: (cardioSet.sets.length > 0 && cardioSet.sets[0].weight > 0) ? "#ff5000" : "#333333"
+            color: cardioSet === undefined ? "#55555" : "#ff5000"
           },
           {
-            filledPercentage:
-              strengthSet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
-            color: colorconfig.inColor
+            filledPercentage: bodySet === undefined ? 0.75 :
+              bodySet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+            color: bodySet === undefined ? "#333333" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.inColor
           },
           {
-            filledPercentage:
-              strengthSet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
-            color: colorconfig.outColor
+            filledPercentage: bodySet === undefined ? 0.75 :
+              bodySet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
+            color: bodySet === undefined ? "#111111" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.outColor
+          },
+          {
+            filledPercentage: armSet === undefined ? 0.75 :
+              armSet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+            color: armSet === undefined ? "#333333" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.inColor
+          },
+          {
+            filledPercentage: armSet === undefined ? 0.75 :
+              armSet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
+            color: armSet === undefined ? "#111111" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.outColor
           },
         ];
       }

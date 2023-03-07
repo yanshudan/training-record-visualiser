@@ -14,7 +14,7 @@ import { movementDefinitions, movementToPart } from '../utils/Constants';
 import { BodyStatus, Plan, PlanMeta, Record } from '../utils/RecordSerializer';
 
 export function StatsPage(props: { rows: Record[] }) {
-  const allTypesSet = new Set(movementDefinitions.map((definition) => definition.part));
+  const allTypesSet = new Set([...movementDefinitions.keys()]);
   const allTypes = Array.from(allTypesSet.values());
   const savedPlan: Plan = JSON.parse(localStorage.getItem("plan") || "{}") as Plan;
   const [renderType, setRenderType] = React.useState<"cards" | "chart" | "rings" | "plan">("rings");
@@ -55,7 +55,7 @@ export function StatsPage(props: { rows: Record[] }) {
       {renderType !== "rings" && renderType !== "plan" &&
         <Stack sx={{ marginTop: "10px", marginBottom: "20px" }}>
           <div>{
-            movementDefinitions.filter((definition) => definition.part === selectedType)[0].movements.map((name) => {
+            movementDefinitions.get(selectedType)!.movements.map((name) => {
               return <Chip label={name} onClick={() => {
                 let newMovements;
                 if (selectedMovements.includes(name)) {

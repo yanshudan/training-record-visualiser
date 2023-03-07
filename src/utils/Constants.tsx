@@ -1,4 +1,3 @@
-interface ColorMap { [key: string]: { outColor: string, inColor: string } }
 export interface ClockProps {
     data: {
         start: number,
@@ -6,43 +5,26 @@ export interface ClockProps {
         end: number
     }
 }
-export const themes: ColorMap = {
-    "Chest": {
-        outColor: "#99ff00",
-        inColor: "#ffff00",
-    },
-    "Legs": {
-        outColor: "#ff8800",
-        inColor: "#ff0000",
-    },
-    "Back": {
-        outColor: "#0099ff",
-        inColor: "#00ffff",
-    },
-    "Shoulder": {
-        outColor: "#ffff00",
-        inColor: "#ffff88",
-    },
-    "Cardio": {
-        inColor: "#333333",
-        outColor: "#111111"
-    }
-}
+
 
 export const oneday = 1000 * 60 * 60 * 24;
 export const today = new Date();
 
 
-export const movementDefinitions = [
-    {
-        part: "Shoulder", movements: [
+export const movementDefinitions = new Map<string, { movements: string[], theme: { inColor: string, outColor: string } }>([
+    ["Shoulder", {
+        movements: [
             "FacePull",
             "侧平举",
             "推举"
-        ]
-    },
-    {
-        part: "Chest", movements: [
+        ],
+        theme: {
+            outColor: "#ffff00",
+            inColor: "#ffff88",
+        },
+    }],
+    ["Chest", {
+        movements: [
             "上斜卧推",
             "上斜",
             "卧推",
@@ -50,46 +32,70 @@ export const movementDefinitions = [
             "哑铃飞鸟",
             "平板哑铃",
             "平板飞鸟"
-        ]
-    },
-    {
-        part: "Back", movements: [
+        ],
+        theme: {
+            outColor: "#99ff00",
+            inColor: "#ffff00",
+        }
+    }],
+    ["Back", {
+        movements: [
             "下拉",
             "划船",
             "反手杠铃划船",
             "杠铃划船",
             "绳索划船"
-        ]
-    },
-    {
-        part: "Bicep", movements: [
+        ],
+        theme: {
+            outColor: "#0099ff",
+            inColor: "#00ffff",
+        }
+    }],
+    ["Bicep", {
+        movements: [
             "哑铃弯举",
             "杠铃弯举",
             "弯举"
-        ]
-    },
-    {
-        part: "Tricep", movements: [
+        ],
+        theme: {
+            outColor: "#99ff00",
+            inColor: "#ffff00",
+        }
+    }],
+    ["Tricep", {
+        movements: [
             "屈伸",
             "碎裂者"
-        ]
-    },
-    {
-        part: "Legs", movements: [
+        ],
+        theme: {
+            outColor: "#0099ff",
+            inColor: "#00ffff",
+        }
+    }],
+    ["Legs", {
+        movements: [
             "并脚蹲",
             "深蹲",
             "窄蹲",
             "硬拉"
-        ]
-    },
-    {
-        part: "Cardio", movements: [
+        ],
+        theme: {
+            outColor: "#ff8800",
+            inColor: "#ff0000",
+        }
+    }],
+    ["Cardio", {
+        movements: [
             "跑步",
             "慢跑",
             "快跑",
-        ]
-    }
-]
+        ],
+        theme: {
+            inColor: "#333333",
+            outColor: "#111111"
+        }
+    }],
+]);
 
 export const sampleRecordsRaw = `2023-02-16 Chest
 卧推 40kg 12 12 30kg 11 11 
@@ -118,10 +124,7 @@ export const sampleRecordsRaw = `2023-02-16 Chest
 深蹲 40kg 12 12 30kg 11 11 
 跑步 5km 15 20 180bpm 5`
 
-export const movementToPart = new Map<string, string>();
-
-movementDefinitions.map((definition) => {
-    return definition.movements.map((movement) => [movement, definition.part])
-}).reduce((a, b) => a.concat(b), []).forEach((pair) => {
-    movementToPart.set(pair[0], pair[1]);
-});
+export const movementToPart = new Map<string, string>(
+    [...movementDefinitions.entries()].map(([category, definition]) => {
+        return definition.movements.map((movement) => [movement, category] as [string, string])
+    }).reduce((a, b) => a.concat(b), []))
