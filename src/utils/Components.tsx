@@ -55,10 +55,12 @@ export function RecordList(props: {
             props.setRecords([{
               date: today,
               topic: record.topic,
+              comment:"",
               movements: record.movements.map((movement: Movement) => {
                 return {
                   ...movement,
-                  sets: [{ ...(movement.sets[0]), reps: 0 }]
+                  sets: [{ ...(movement.sets[0]), reps: 0 }],
+                  comment:""
                 }
               })
             }, ...props.records,])
@@ -75,9 +77,11 @@ export function RecordList(props: {
           const useDefault = props.selectedTypes.length === 0 || firstSelectedPart === undefined;
           props.setRecords([{
             date: today,
+            comment:"Comments",
             topic: useDefault ? "Legs" : props.selectedTypes[0],
             movements: [{
               name: useDefault ? "深蹲" : firstSelectedPart.movements[0],
+              comment:"Comments",
               sets: [
                 {
                   weight: 20,

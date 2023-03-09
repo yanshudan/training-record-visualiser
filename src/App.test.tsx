@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
+import { RecordSerializer } from './utils/RecordSerializer';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test('serializer', () => {
+  const record=RecordSerializer.parseRecord("2020-12-31 General\n卧推 12kg 10 10 10kg 10 10\nPullups 10 10 10 10 10");
+  expect(record?.topic ==="General").toBeTruthy();
 });

@@ -14,3 +14,7 @@ export function DateDiffInDays(date1: Date, date2: Date) {
     const fullDate2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
     return Math.round(Math.abs(fullDate1.getTime() - fullDate2.getTime()) / oneday);
 }
+
+export function isNumeric(str:string) {
+    return !isNaN(parseFloat(str));
+}

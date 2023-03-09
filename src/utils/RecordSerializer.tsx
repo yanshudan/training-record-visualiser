@@ -1,9 +1,9 @@
 import { today } from "./Constants";
-import { DetectTopic } from "./Utils";
+import { DetectTopic, isNumeric } from "./Utils";
 
 export class RecordSerializer {
   static serialize(record: Record): string {
-    return `${record.date.toISOString().split("T")[0]} ${record.topic}\n${record.movements.map(
+    return `${record.date.toISOString().split("T")[0]} ${record.topic} ${record.comment}\n${record.movements.map(
       movement => this.serializeMovement(movement)
     ).join("\n")}`;
   }
@@ -13,12 +13,12 @@ export class RecordSerializer {
   static parseRecord(record: string): Record | undefined {
     try {
       let lines = record.split("\n").filter(line => line !== "");
-      let [dateStr, topic] = lines[0].split("//")[0].split(" ");
+      let [dateStr, topic, comment] = lines[0].split(" ");
       const date = this.parseDate(dateStr);
 
       let movements = lines.slice(1).map(line => this.parseMovement(line)).filter(m => m !== undefined) as Movement[];
-      if(movements.length===0) return undefined;
-      return { date, movements, topic: topic || DetectTopic(movements) || "General" };
+      if (movements.length === 0) return undefined;
+      return { date, movements, topic: topic || DetectTopic(movements) || "General", comment: comment || "" };
     }
     catch (e) {
       console.log(`Invalid record:${record} ${e}`);
@@ -34,10 +34,12 @@ export class RecordSerializer {
       if (lastSet === undefined || lastSet.unit !== trainSet.unit || lastSet.weight !== trainSet.weight) {
         ret += ` ${trainSet.weight}${UnitEnum[trainSet.unit]}`;
       }
-      ret += ` ${trainSet.reps}`;
+      if (trainSet.reps !== 0) {
+        ret += ` ${trainSet.reps}`;
+      }
       lastSet = trainSet;
     }
-    return ret;
+    return ret+` ${movement.comment}`;
   }
 
   static parseDate(dateStr: string): Date {
@@ -49,29 +51,41 @@ export class RecordSerializer {
 
   static parseMovement(raw: string): Movement | undefined {
     try {
-      raw = raw.split("//")[0];
       if (raw === "") return undefined;
       const regex = /([\d\.]+)(kg|lb|km|bpm|min)/g;
       const matches = [...raw.matchAll(regex)];
       if (matches === null || matches.length === 0) {
         return {
           name: raw.trim(),
-          sets: []
+          sets: [],
+          comment: ""
         }
       }
       let sets: TrainSet[] = [];
-      for (const [index, match] of matches.entries()) {
-        if (match.index === undefined) continue;
-        const weight = +match[1];
-        const unit = match[2];
-        const end = matches[index + 1] ? matches[index + 1].index : raw.length;
-        const reps = raw.slice(match.index + match[0].length, end).trim().split(" ");
-        sets = [...sets, ...reps.map(r => { return { weight, unit: UnitEnum[unit as keyof typeof UnitEnum], reps: +r } })];
+      let lastMatch: RegExpMatchArray = [""];
+      for (const match of matches) {
+        if (match.index !== undefined && lastMatch.length > 1 && lastMatch.index !== undefined) {
+          const weight = +lastMatch[1];
+          const unit = lastMatch[2];
+          const reps = raw.slice(lastMatch.index + lastMatch[0].length, match.index).trim().split(" ");
+          sets = [...sets, ...reps.map(r => { return { weight, unit: UnitEnum[unit as keyof typeof UnitEnum], reps: +r } }).filter(r=>!Number.isNaN(r.reps))];
+        }
+        lastMatch = match;
       }
-
+      let comment = "";
+      if (lastMatch.length > 1 && lastMatch.index !== undefined) {
+        const reps = raw.slice(lastMatch.index + lastMatch[0].length).trim().split(" ");
+        console.log(reps);
+        if (!isNumeric(reps[reps.length-1])) {
+          comment = reps.pop() || "";
+        }
+        console.log(reps);
+        sets = [...sets, ...reps.map(r => { return { weight: +lastMatch[1], unit: UnitEnum[lastMatch[2] as keyof typeof UnitEnum], reps: +r } }).filter(r=>!Number.isNaN(r.reps))];
+      }
       return {
         name: raw.slice(0, matches[0].index).trim(),
-        sets: sets
+        sets: sets,
+        comment: comment
       };
     }
     catch (e) {
@@ -85,10 +99,12 @@ export class Record {
   date: Date = today;
   topic: string = "Other";
   movements: Movement[] = [];
+  comment: string = "";
 }
 export class Movement {
   name: string = "";
   sets: TrainSet[] = [];
+  comment: string = "";
 }
 export class TrainSet {
   weight: number = 0;
