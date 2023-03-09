@@ -312,7 +312,6 @@ export function Activities(props: {
           const part = movementToPart.get(m.name)
           return part === "Bicep" || part === "Tricep";
         });
-        console.log(armSet)
         return [
           {
             filledPercentage: cardioSet === undefined ? 0.75 :
