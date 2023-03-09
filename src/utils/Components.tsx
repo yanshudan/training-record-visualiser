@@ -297,10 +297,10 @@ export function Activities(props: {
         if (row === undefined) {
           return [
             { filledPercentage: 0.35, color: "#555555" },
+            { filledPercentage: 0.55, color: "#444444" },
             { filledPercentage: 0.55, color: "#333333" },
-            { filledPercentage: 0.75, color: "#111111" },
-            { filledPercentage: 0.55, color: "#333333" },
-            { filledPercentage: 0.75, color: "#111111" },]
+            { filledPercentage: 0.75, color: "#222222" },
+            { filledPercentage: 0.75, color: "#191919" },]
         }
         // const colorconfig = movementDefinitions[row.topic] || { inColor: "#457457", outColor: "#754754" };
         const cardioSet = row.movements.find((m: Movement) => movementToPart.get(m.name) === "Cardio");
@@ -317,27 +317,27 @@ export function Activities(props: {
           {
             filledPercentage: cardioSet === undefined ? 0.75 :
               cardioSet.sets.map(s => s.weight * s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.expectedCalory),
-            color: cardioSet === undefined ? "#55555" : "#ff5000"
+            color: cardioSet === undefined ? "#555555" : "#ffffff"
           },
           {
             filledPercentage: bodySet === undefined ? 0.75 :
               bodySet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
-            color: bodySet === undefined ? "#333333" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.inColor
+            color: bodySet === undefined ? "#444444" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.inColor
           },
           {
             filledPercentage: bodySet === undefined ? 0.75 :
               bodySet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
-            color: bodySet === undefined ? "#111111" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.outColor
+            color: bodySet === undefined ? "#333333" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.outColor
           },
           {
             filledPercentage: armSet === undefined ? 0.75 :
               armSet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
-            color: armSet === undefined ? "#333333" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.inColor
+            color: armSet === undefined ? "#222222" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.inColor
           },
           {
             filledPercentage: armSet === undefined ? 0.75 :
               armSet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
-            color: armSet === undefined ? "#111111" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.outColor
+            color: armSet === undefined ? "#191919" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.outColor
           },
         ];
       }

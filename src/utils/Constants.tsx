@@ -34,8 +34,18 @@ export const movementDefinitions = new Map<string, { movements: string[], theme:
             "平板飞鸟"
         ],
         theme: {
-            outColor: "#99ff00",
-            inColor: "#ffff00",
+            outColor: "#fffc00",
+            inColor: "#aeff4d",
+        }
+    }],
+    ["Tricep", {
+        movements: [
+            "屈伸",
+            "碎裂者"
+        ],
+        theme: {
+            outColor: "#fc4a1a",
+            inColor: "#f7b733",
         }
     }],
     ["Back", {
@@ -47,8 +57,8 @@ export const movementDefinitions = new Map<string, { movements: string[], theme:
             "绳索划船"
         ],
         theme: {
-            outColor: "#0099ff",
-            inColor: "#00ffff",
+            outColor: "#0de8ce",
+            inColor: "#00f260",
         }
     }],
     ["Bicep", {
@@ -58,18 +68,8 @@ export const movementDefinitions = new Map<string, { movements: string[], theme:
             "弯举"
         ],
         theme: {
-            outColor: "#99ff00",
-            inColor: "#ffff00",
-        }
-    }],
-    ["Tricep", {
-        movements: [
-            "屈伸",
-            "碎裂者"
-        ],
-        theme: {
-            outColor: "#0099ff",
-            inColor: "#00ffff",
+            outColor: "#0d5ee8",
+            inColor: "#0d87e8",
         }
     }],
     ["Legs", {
@@ -80,8 +80,8 @@ export const movementDefinitions = new Map<string, { movements: string[], theme:
             "硬拉"
         ],
         theme: {
-            outColor: "#ff8800",
-            inColor: "#ff0000",
+            outColor: "#ba12bb",
+            inColor: "#ff00cc",
         }
     }],
     ["Cardio", {
