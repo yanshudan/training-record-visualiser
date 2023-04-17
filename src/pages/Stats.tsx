@@ -118,7 +118,8 @@ function filterRows(rows: Record[], selectedType: string, selectedMovements: str
       return {
         date: row.date,
         movements: row.movements.filter((movement) => movementToPart.get(movement.name) === selectedType && (selectedMovements.includes(movement.name))),
-        topic: row.topic
+        topic: row.topic,
+        comment:row.comment
       }
     }
   ).filter((row) => row.movements.length > 0);

@@ -55,12 +55,12 @@ export function RecordList(props: {
             props.setRecords([{
               date: today,
               topic: record.topic,
-              comment:"",
+              comment: "",
               movements: record.movements.map((movement: Movement) => {
                 return {
                   ...movement,
                   sets: [{ ...(movement.sets[0]), reps: 0 }],
-                  comment:""
+                  comment: ""
                 }
               })
             }, ...props.records,])
@@ -77,11 +77,11 @@ export function RecordList(props: {
           const useDefault = props.selectedTypes.length === 0 || firstSelectedPart === undefined;
           props.setRecords([{
             date: today,
-            comment:"Comments",
+            comment: "Comments",
             topic: useDefault ? "Legs" : props.selectedTypes[0],
             movements: [{
               name: useDefault ? "深蹲" : firstSelectedPart.movements[0],
-              comment:"Comments",
+              comment: "Comments",
               sets: [
                 {
                   weight: 20,
@@ -144,7 +144,6 @@ export function EditableCard(props: {
           }
         }} /> :
       <CardContent sx={{ "padding-bottom": "0px" }} onClick={() => { setShowEditor(true) }}>
-        <Typography sx={{ position: "fixed", right: "20px", width: "fit-content", color: "#555555" }}>Tap the card to edit</Typography>
         <Typography variant="h5" component="div" display="inline-block">
           {props.record.topic}
         </Typography>
@@ -288,7 +287,8 @@ export function Activities(props: {
       const planProgress = DateDiffInDays(date, new Date(props.planMeta.start));
       const planBase = 300 * Math.log(props.planMeta.FFMIlimit - props.current.FFMI) / (-props.planMeta.growthRatio);
       const expectedFFMI = props.planMeta.FFMIlimit - Math.exp(-props.planMeta.growthRatio * (planProgress + planBase) / 300);
-      const expectedFFM = expectedFFMI * Math.pow(props.planMeta.height / 100, 2);
+      const expectedStrength = (expectedFFMI-18) * props.planMeta.strengthRatio;
+      const expectedAmount = (expectedFFMI-18) * props.planMeta.amountRatio;
       const getRings = () => {
         if (daydiff < 0 || daydiff >= totalDays) {
           return [
@@ -324,22 +324,22 @@ export function Activities(props: {
           },
           {
             filledPercentage: bodySet === undefined ? 0.75 :
-              bodySet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+              bodySet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / expectedAmount,
             color: bodySet === undefined ? "#444444" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.inColor
           },
           {
             filledPercentage: bodySet === undefined ? 0.75 :
-              bodySet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
+              bodySet.sets[0].weight / expectedStrength,
             color: bodySet === undefined ? "#333333" : movementDefinitions.get(movementToPart.get(bodySet.name)!)!.theme.outColor
           },
           {
             filledPercentage: armSet === undefined ? 0.75 :
-              armSet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / (expectedFFMI * props.planMeta.amountRatio),
+              armSet.sets.map(s => s.reps).reduce((a, b) => a + b, 0) / expectedAmount,
             color: armSet === undefined ? "#222222" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.inColor
           },
           {
             filledPercentage: armSet === undefined ? 0.75 :
-              armSet.sets[0].weight / (expectedFFM * props.planMeta.strengthRatio),
+              armSet.sets[0].weight / expectedStrength,
             color: armSet === undefined ? "#191919" : movementDefinitions.get(movementToPart.get(armSet.name)!)!.theme.outColor
           },
         ];
@@ -463,27 +463,27 @@ export function Planner(props: {
 export function ActivitySliders(props: { planMeta: PlanMeta, setPlanMeta: (planMeta: PlanMeta) => void }) {
   return <>
     <Slider
-      min={0.1}
-      max={2}
-      step={0.1}
+      min={5}
+      max={50}
+      step={1}
       onChange={(_, val) => {
         props.setPlanMeta({ ...props.planMeta, strengthRatio: +val });
       }}
       marks={[
-        { value: 0.2, label: "Weak" },
-        { value: 1.0, label: "Average" },
-        { value: 1.8, label: "Strong" },
+        { value: 10, label: "Weak" },
+        { value: 25, label: "Average" },
+        { value: 40, label: "Strong" },
       ]}
       defaultValue={props.planMeta.strengthRatio}
       sx={{ width: "80%", left: "10%" }} />
     <Slider
-      min={0.4}
-      max={4}
-      step={0.1}
+      min={5}
+      max={40}
+      step={1}
       marks={[
-        { value: 1, label: "Strength" },
-        { value: 2, label: "Balance" },
-        { value: 3, label: "Durable" },
+        { value: 10, label: "Strength" },
+        { value: 20, label: "Balance" },
+        { value: 30, label: "Durable" },
       ]}
       onChange={(_, val) => {
         props.setPlanMeta({ ...props.planMeta, amountRatio: +val });
