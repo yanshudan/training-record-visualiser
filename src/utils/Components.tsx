@@ -14,12 +14,13 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 import React from 'react';
 import { Bar, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import '../App.css';
 import { movementToPart, oneday, today } from '../utils/Constants';
 import { movementDefinitions } from './Constants';
-import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, TrainSet, UnitEnum } from './RecordSerializer';
+import { BodyStatus, Movement, PlanMeta, Record, RecordSerializer, UnitEnum } from './RecordSerializer';
 import { DateDiffInDays, MinusDays } from './Utils';
 
 export function Movements(props: {
@@ -444,8 +445,11 @@ export function Planner(props: {
         <DatePicker
           label="Start from"
           onChange={(newValue) => {
-            props.setPlanMeta({ ...props.planMeta, start: newValue as Date })
+            if (newValue) {
+              props.setPlanMeta({ ...props.planMeta, start: newValue.toDate() })
+            }
           }}
+          defaultValue={dayjs(props.planMeta.start)}
         />
         <TextField
           disabled
