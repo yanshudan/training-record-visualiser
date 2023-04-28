@@ -34,12 +34,10 @@ export class RecordSerializer {
       if (lastSet === undefined || lastSet.unit !== trainSet.unit || lastSet.weight !== trainSet.weight) {
         ret += ` ${trainSet.weight}${UnitEnum[trainSet.unit]}`;
       }
-      if (trainSet.reps !== 0) {
-        ret += ` ${trainSet.reps}`;
-      }
+      ret += ` ${trainSet.reps}`;
       lastSet = trainSet;
     }
-    return ret+` ${movement.comment}`;
+    return ret + ` ${movement.comment}`;
   }
 
   static parseDate(dateStr: string): Date {
@@ -68,19 +66,17 @@ export class RecordSerializer {
           const weight = +lastMatch[1];
           const unit = lastMatch[2];
           const reps = raw.slice(lastMatch.index + lastMatch[0].length, match.index).trim().split(" ");
-          sets = [...sets, ...reps.map(r => { return { weight, unit: UnitEnum[unit as keyof typeof UnitEnum], reps: +r } }).filter(r=>!Number.isNaN(r.reps))];
+          sets = [...sets, ...reps.map(r => { return { weight, unit: UnitEnum[unit as keyof typeof UnitEnum], reps: +r } }).filter(r => !Number.isNaN(r.reps))];
         }
         lastMatch = match;
       }
       let comment = "";
       if (lastMatch.length > 1 && lastMatch.index !== undefined) {
         const reps = raw.slice(lastMatch.index + lastMatch[0].length).trim().split(" ");
-        console.log(reps);
-        if (!isNumeric(reps[reps.length-1])) {
+        if (!isNumeric(reps[reps.length - 1])) {
           comment = reps.pop() || "";
         }
-        console.log(reps);
-        sets = [...sets, ...reps.map(r => { return { weight: +lastMatch[1], unit: UnitEnum[lastMatch[2] as keyof typeof UnitEnum], reps: +r } }).filter(r=>!Number.isNaN(r.reps))];
+        sets = [...sets, ...reps.map(r => { return { weight: +lastMatch[1], unit: UnitEnum[lastMatch[2] as keyof typeof UnitEnum], reps: +r } }).filter(r => !Number.isNaN(r.reps))];
       }
       return {
         name: raw.slice(0, matches[0].index).trim(),
