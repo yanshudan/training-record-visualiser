@@ -9,9 +9,13 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
-import { Activities, ActivitySliders, MyComposedChart, Planner, RecordList } from '../utils/Components';
 import { movementDefinitions, movementToPart } from '../utils/Constants';
 import { BodyStatus, Plan, PlanMeta, Record } from '../utils/RecordSerializer';
+import { MyComposedChart } from './ChartView';
+import { RecordList } from '../components/RecordList';
+import { Activities } from './Activities';
+import { ActivitySliders } from '../components/ActivitySliders';
+import { Planner } from './Planner';
 
 export function StatsPage(props: { rows: Record[] }) {
   const allTypesSet = new Set([...movementDefinitions.keys()]);

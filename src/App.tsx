@@ -5,10 +5,10 @@ import './App.css';
 import { TimerPage } from './pages/Timer';
 import { MainPage } from './pages/MainPage';
 import { StatsPage } from './pages/Stats';
-import { BottomNavBar } from './utils/Components';
 import { Record, RecordSerializer } from './utils/RecordSerializer';
 import { ClockProps, sampleRecordsRaw } from './utils/Constants';
 import { ManualPage } from './pages/ManualPage';
+import { BottomNavBar } from './components/BottomNavBar';
 
 function App() {
   const [rows, setRows] = React.useState<Record[]>(RecordSerializer.deserialize(localStorage.getItem("trainingRecords") || sampleRecordsRaw).sort((a, b) => b.date.getTime() - a.date.getTime()));

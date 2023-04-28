@@ -10,7 +10,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import '../App.css';
-import { RecordList } from '../utils/Components';
+import { RecordList } from '../components/RecordList';
 import { Record, RecordSerializer } from '../utils/RecordSerializer';
 import { today } from '../utils/Constants';
 
@@ -18,7 +18,7 @@ export function MainPage(props: {
   rows: Record[],
   setRows: (records: Record[]) => void,
   allTypes: Set<string>,
-  setAllTypes:(allTypes:Set<string>)=>void,
+  setAllTypes: (allTypes: Set<string>) => void,
   selectedTypes: string[],
   setSelectedTypes: (selectedTypes: string[]) => void,
 }) {
@@ -33,14 +33,14 @@ export function MainPage(props: {
     props.setSelectedTypes(props.selectedTypes.filter((selectedType) => newAllTypes.has(selectedType)))
   }, [props.rows])
 
-  const hiddenFileInput = React.useRef<HTMLInputElement|null>(null);
+  const hiddenFileInput = React.useRef<HTMLInputElement | null>(null);
   const descriptionElementRef = React.useRef<HTMLElement>(null);
 
   const handleClick = () => {
-    if(hiddenFileInput.current===null) return;
+    if (hiddenFileInput.current === null) return;
     hiddenFileInput.current.click();
   };
-  const handleChange = (event:any) => {
+  const handleChange = (event: any) => {
     event.preventDefault();
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -58,7 +58,7 @@ export function MainPage(props: {
     setScroll(scrollType);
   };
 
-  const mergeRecords = (value:string) => {
+  const mergeRecords = (value: string) => {
     const newRows = RecordSerializer.deserialize(value);
     props.setRows([...newRows, ...props.rows].sort((a, b) => b.date.getTime() - a.date.getTime()))
     setOpen(false);
@@ -80,7 +80,7 @@ export function MainPage(props: {
           </div>
         </Stack>
         {(props.selectedTypes.length === 0 && props.allTypes.size !== 0) ? <Alert severity="warning">Please select a record type!</Alert> : null}
-        <RecordList records={props.rows} selectedTypes={props.selectedTypes} setRecords={props.setRows} editable/>
+        <RecordList records={props.rows} selectedTypes={props.selectedTypes} setRecords={props.setRows} editable />
       </Paper>
       <Paper sx={{ position: 'fixed', bottom: 60, right: 10 }}>
         <ToggleButtonGroup aria-label="text alignment" >
@@ -88,7 +88,7 @@ export function MainPage(props: {
             <CallMergeIcon />
           </ToggleButton>
           <ToggleButton value="center" onClick={handleClick}>
-            <input type="file" ref={hiddenFileInput} onChange={handleChange} style={{display:'none'}}/>
+            <input type="file" ref={hiddenFileInput} onChange={handleChange} style={{ display: 'none' }} />
             <FileUploadIcon />
           </ToggleButton>
           <ToggleButton value="right" onClick={() => {
@@ -122,8 +122,8 @@ export function MainPage(props: {
           <TextField multiline fullWidth onChange={(newVal) => { setValue(newVal.target.value) }} ></TextField>
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>{setOpen(false)}}>Cancel</Button>
-        <Button onClick={() => { setOpen(false);mergeRecords(value)}}>Confirm</Button>
+          <Button onClick={() => { setOpen(false) }}>Cancel</Button>
+          <Button onClick={() => { setOpen(false); mergeRecords(value) }}>Confirm</Button>
         </DialogActions>
       </Dialog>
     </Paper>)
