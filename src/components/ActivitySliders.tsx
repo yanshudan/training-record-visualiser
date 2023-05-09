@@ -1,6 +1,7 @@
 import { Slider } from '@mui/material';
 import '../App.css';
 import { PlanMeta } from '../utils/RecordSerializer';
+import React from 'react';
 
 export function ActivitySliders(props: { planMeta: PlanMeta, setPlanMeta: (planMeta: PlanMeta) => void }) {
   return <>

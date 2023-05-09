@@ -5,6 +5,7 @@ import '../App.css';
 import { movementDefinitions, movementToPart, today } from '../utils/Constants';
 import { BodyStatus, Movement, PlanMeta, Record } from '../utils/RecordSerializer';
 import { DateDiffInDays, MinusDays } from '../utils/Utils';
+import React from 'react';
 
 export function Activities(props: {
   records: Record[],
