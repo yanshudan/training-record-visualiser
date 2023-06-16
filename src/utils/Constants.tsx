@@ -54,7 +54,8 @@ export const movementDefinitions = new Map<string, { movements: string[], theme:
       "划船",
       "反手杠铃划船",
       "杠铃划船",
-      "绳索划船"
+      "绳索划船",
+      "T杆划船"
     ],
     theme: {
       outColor: "#0de8ce",
