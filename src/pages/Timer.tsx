@@ -1,9 +1,12 @@
-import { Button, Paper, TextField, Box } from '@mui/material';
+import { Box, Button, Paper, TextField } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
 import React from 'react';
 import { setInterval } from 'timers';
 import '../App.css';
-import { Record } from '../utils/RecordSerializer';
 import { ClockProps } from '../utils/Constants';
+
+const kg2lb = 2.20462262;
+const barInKg = 20;
 
 export function TimerPage(props: {
   clockProps: ClockProps,
@@ -31,6 +34,7 @@ export function TimerPage(props: {
       props.setStepA(A);
       props.setStepB(B);
     }}>start</Button>
+    <Calculator />
   </Box>
 }
 
@@ -77,4 +81,71 @@ export function Clock(props: ClockProps & { timer: NodeJS.Timer | undefined, set
       margin: "0px"
     }}>{info}</h2>
   </div>
+}
+
+export function Calculator() {
+  const [totalkg, setTotalkg] = React.useState(0);
+  const [totallb, setTotallb] = React.useState(0);
+  const [sidekg, setSidekg] = React.useState(0);
+  const [sidelb, setSidelb] = React.useState(0);
+
+  return <div>
+    <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center", marginTop: "20px", marginBottom: "50px" }}>
+      <TextField
+        label="Total"
+        type="number"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+        }}
+        onChange={(event) => {
+          setTotalkg(parseInt(event.target.value))
+          setSidekg((parseInt(event.target.value) - barInKg) / 2)
+          setTotallb(parseInt(event.target.value) * kg2lb)
+          setSidelb((parseInt(event.target.value) - barInKg) / 2 * kg2lb)
+        }}
+        value={totalkg} />
+      <TextField
+        label="Side"
+        type="number"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+        }}
+        onChange={(event) => {
+          setTotalkg(parseInt(event.target.value) * 2 + barInKg)
+          setSidekg(parseInt(event.target.value))
+          setTotallb((parseInt(event.target.value) * 2 + barInKg) * kg2lb)
+          setSidelb(parseInt(event.target.value) * kg2lb)
+        }}
+        value={sidekg} />
+    </Paper>
+    <Paper sx={{ alignItems: "center", display: "flex", justifyContent: "center", marginTop: "20px", marginBottom: "50px" }}>
+      <TextField
+        label="Total"
+        type="number"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">lb</InputAdornment>,
+        }}
+        onChange={(event) => {
+          setTotalkg(parseInt(event.target.value) / kg2lb)
+          setSidekg((parseInt(event.target.value) / kg2lb - barInKg) / 2)
+          setTotallb(parseInt(event.target.value))
+          setSidelb((parseInt(event.target.value) - barInKg * kg2lb) / 2)
+        }}
+        value={totallb} />
+      <TextField
+        label="Side"
+        type="number"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">lb</InputAdornment>,
+        }}
+        onChange={(event) => {
+          setTotalkg((parseInt(event.target.value) / kg2lb * 2 + barInKg))
+          setSidekg(parseInt(event.target.value) / kg2lb)
+          setTotallb((parseInt(event.target.value) * 2 + barInKg * kg2lb))
+          setSidelb(parseInt(event.target.value))
+        }}
+        value={sidelb} />
+    </Paper>
+  </div>
+
 }
