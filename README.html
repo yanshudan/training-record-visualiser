@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Training Record Visualiser — Design & Setup</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 4rem;
+        background: #0b0b0d; color: #e6e6e6; line-height: 1.6;
+      }
+      h1 { color: #00f260; }
+      h2 { color: #0d87e8; margin-top: 2.2rem; border-bottom: 1px solid #222; padding-bottom: .3rem; }
+      h3 { color: #ff00cc; margin-top: 1.4rem; }
+      code, pre { background: #16161a; border: 1px solid #26262c; border-radius: 6px; }
+      code { padding: .1rem .35rem; }
+      pre { padding: 1rem; overflow-x: auto; }
+      table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+      th, td { border: 1px solid #26262c; padding: .5rem .7rem; text-align: left; }
+      th { background: #16161a; }
+      a { color: #00f260; }
+      .pill { display: inline-block; background: #16161a; border: 1px solid #26262c;
+        border-radius: 999px; padding: .1rem .6rem; font-size: .85rem; margin: 0 .2rem; }
+      blockquote { border-left: 3px solid #0d87e8; margin: 1rem 0; padding: .3rem 1rem; color: #b9b9b9; }
+    </style>
+  </head>
+  <body>
+    <h1>Training Record Visualiser</h1>
+    <p>
+      A single-page React app to <strong>plan, run, and visualise</strong> strength training.
+      <span class="pill">React 18</span><span class="pill">Vite</span><span class="pill">MUI</span>
+      <span class="pill">recharts</span><span class="pill">Azure Blob</span>
+    </p>
+    <blockquote>
+      Multi-user by design. All data is keyed by <code>userId</code> and stored as full-overwrite
+      JSON blobs under <code>users/{userId}/…</code>. Run instantly in local or SAS mode; switch on
+      the backend for real multi-user.
+    </blockquote>
+
+    <h2>Features</h2>
+    <ol>
+      <li><strong>Today (Start your plan)</strong> — generates today's targets from history + progressive-overload
+        rules, runs the workout with per-set &amp; rest timers, lets you slide reps/weight when a target is missed,
+        add exercises in place, and saves the session.</li>
+      <li><strong>Plan (Configure)</strong> — CRUD over exercises (body part, unit, defaults) and the ordered
+        progressive-overload rules (e.g. <em>+1 rep each time</em>, <em>+2.5&nbsp;kg when all sets hit 12, reset to 10</em>).</li>
+      <li><strong>Timetable</strong> — define a daily schedule, visualised as a 24-hour <em>clock</em> or a vertical
+        <em>flow</em> (switchable).</li>
+      <li><strong>Stats</strong> — body-part frequency, volume-over-time per body part, and per-exercise progression
+        (top weight, estimated 1RM, volume), all driven by your own exercise definitions.</li>
+    </ol>
+
+    <h2>Quick start</h2>
+    <pre>npm install
+npm run dev      # http://localhost:3123</pre>
+    <p>The app starts in <strong>local</strong> storage mode (browser only) and migrates any legacy
+      <code>localStorage["trainingRecords"]</code> data automatically.</p>
+
+    <h2>Architecture</h2>
+    <table>
+      <tr><th>Layer</th><th>Location</th><th>Notes</th></tr>
+      <tr><td>Schema (v2)</td><td><code>src/data/schema.ts</code></td><td>Versioned JSON; <code>schemaVersion</code> on every blob.</td></tr>
+      <tr><td>Body parts / seed</td><td><code>src/data/bodyParts.ts</code></td><td>Body-part themes + seed exercise defs.</td></tr>
+      <tr><td>Migration</td><td><code>src/data/migration.ts</code></td><td>Legacy text → v2; seeds defaults. Idempotent.</td></tr>
+      <tr><td>Storage abstraction</td><td><code>src/storage/*</code></td><td>Interface + Local / SAS / Backend providers + factory.</td></tr>
+      <tr><td>Identity</td><td><code>src/auth/AuthContext.tsx</code></td><td>userId-keyed; swap in MSAL/Entra later.</td></tr>
+      <tr><td>App data store</td><td><code>src/state/AppDataContext.tsx</code></td><td>Loads/saves docs with ETag concurrency.</td></tr>
+      <tr><td>Domain</td><td><code>src/domain/*</code></td><td>Overload engine, plan generator, stats.</td></tr>
+      <tr><td>Backend</td><td><code>server/</code></td><td>Per-user blob proxy + SAS issuance.</td></tr>
+    </table>
+
+    <h2>Storage modes</h2>
+    <table>
+      <tr><th>Mode</th><th>Use</th><th>Config</th></tr>
+      <tr><td><code>local</code></td><td>Dev / offline; browser localStorage</td><td>default</td></tr>
+      <tr><td><code>sas</code></td><td>Single personal user, no backend</td><td>Settings → paste container SAS URL</td></tr>
+      <tr><td><code>backend</code></td><td>True multi-user</td><td>Settings → backend base URL + bearer token</td></tr>
+    </table>
+    <p>Configure via <code>.env.local</code> (see <code>.env.example</code>) or at runtime on the Settings page.
+      <strong>Account keys never live in client code.</strong></p>
+
+    <h2>Azure Blob: versioning &amp; bug-tolerance</h2>
+    <p>Each save is a <strong>full overwrite</strong> of <code>records.json</code>. To stay bug-tolerant:</p>
+    <ul>
+      <li><strong>Blob Versioning</strong> — every overwrite auto-creates a recoverable previous version.</li>
+      <li><strong>Soft Delete</strong> — recover from accidental deletes/overwrites within a retention window.</li>
+      <li><strong>ETag / If-Match</strong> — optimistic concurrency prevents lost updates (the app reloads on conflict).</li>
+    </ul>
+    <pre>az storage account blob-service-properties update \
+  --account-name &lt;acct&gt; --enable-versioning true \
+  --enable-delete-retention true --delete-retention-days 30</pre>
+
+    <h2>Blob layout</h2>
+    <pre>users/{userId}/records.json     # full accumulating history (full overwrite each save)
+users/{userId}/exercises.json   # exercise defs + overload rules
+users/{userId}/timetable.json   # daily schedule</pre>
+
+    <h2>Data migration plan</h2>
+    <ol>
+      <li>On first load, <code>runMigrations()</code> checks for a v2 <code>records.json</code>.</li>
+      <li>If absent and legacy <code>localStorage["trainingRecords"]</code> exists, it is parsed by the
+        legacy serializer and written as v2; a flag prevents re-running.</li>
+      <li>Default exercise definitions are seeded if none exist.</li>
+      <li>Future schema bumps: read <code>schemaVersion</code> and transform forward in the same place.</li>
+    </ol>
+
+    <h2>Backend</h2>
+    <p>See <code>server/README.md</code>. The auth is a <strong>stub</strong> (token = userId) — replace with real
+      JWT/Entra validation before production.</p>
+
+    <h2>Iterating with the custom agent</h2>
+    <p>A project agent lives at <code>.github/agents/training-visualiser.agent.md</code>. It carries the key design
+      decisions so future changes stay consistent. Select it in the VS Code chat agent picker.</p>
+  </body>
+</html>

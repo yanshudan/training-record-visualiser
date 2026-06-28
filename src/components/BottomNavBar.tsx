@@ -1,21 +1,32 @@
+import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
+import TodayIcon from "@mui/icons-material/Today";
+import TuneIcon from "@mui/icons-material/Tune";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import InsightsIcon from "@mui/icons-material/Insights";
+import SettingsIcon from "@mui/icons-material/Settings";
 
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import SsidChartIcon from '@mui/icons-material/SsidChart';
-import TimerIcon from '@mui/icons-material/Timer';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import Paper from '@mui/material/Paper';
-import React from 'react';
-import '../App.css';
+export type Section = "today" | "plan" | "exercises" | "stats" | "settings";
 
-export function BottomNavBar(props: { selection: number, setSection: React.Dispatch<React.SetStateAction<number>> }) {
-  return (<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
-    <BottomNavigation showLabels value={props.selection} >
-      <BottomNavigationAction onClick={() => props.setSection(0)} label="Records" icon={<FormatListBulletedIcon />} />
-      <BottomNavigationAction onClick={() => props.setSection(1)} label="Timer" icon={<TimerIcon />} />
-      <BottomNavigationAction onClick={() => props.setSection(2)} label="Statistics" icon={<SsidChartIcon />} />
-      <BottomNavigationAction onClick={() => props.setSection(3)} label="Manual" icon={<HelpOutlineIcon />} />
-    </BottomNavigation>
-  </Paper>)
+export function BottomNavBar({
+  section,
+  onChange,
+}: {
+  section: Section;
+  onChange: (s: Section) => void;
+}) {
+  return (
+    <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 10 }} elevation={8}>
+      <BottomNavigation
+        showLabels
+        value={section}
+        onChange={(_, value) => onChange(value as Section)}
+      >
+        <BottomNavigationAction label="Today" value="today" icon={<TodayIcon />} />
+        <BottomNavigationAction label="Plan" value="plan" icon={<TuneIcon />} />
+        <BottomNavigationAction label="Exercises" value="exercises" icon={<FitnessCenterIcon />} />
+        <BottomNavigationAction label="Stats" value="stats" icon={<InsightsIcon />} />
+        <BottomNavigationAction label="Settings" value="settings" icon={<SettingsIcon />} />
+      </BottomNavigation>
+    </Paper>
+  );
 }
