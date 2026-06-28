@@ -1,46 +1,47 @@
-# Getting Started with Create React App
+# Training Record Visualiser
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Plan, run, and visualise your strength training. React + MUI on Vite, with a
+multi-user-ready Azure Blob storage layer.
 
-## Available Scripts
+> Full design, setup, storage modes, and the data-migration plan are documented
+> in **[README.html](README.html)** (open it in a browser).
 
-In the project directory, you can run:
+## Quick start
 
-### `npm start`
+```powershell
+npm install
+npm run dev      # http://localhost:3123
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3123](http://localhost:3000) to view it in the browser.
+Starts in **local** storage mode and auto-migrates legacy
+`localStorage["trainingRecords"]` data to the v2 schema.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Scripts
 
-### `npm test`
+| Script              | Purpose                          |
+| ------------------- | -------------------------------- |
+| `npm run dev`       | Start the dev server (port 3123) |
+| `npm run build`     | Typecheck + production build     |
+| `npm run typecheck` | Type-check only                  |
+| `npm run preview`   | Preview the production build     |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features
 
-### `npm run build`
+1. **Today** — generate today's plan from history + overload rules; per-set & rest timers; slide reps/weight; add exercises in place; save the session.
+2. **Plan** — configure exercises and progressive-overload rules.
+3. **Timetable** — daily schedule as a switchable clock / flow view.
+4. **Stats** — per-body-part visualisations from your own exercise definitions.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Storage modes
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `local` — browser only (default).
+- `sas` — single user; paste a container SAS URL on the Settings page.
+- `backend` — true multi-user; see [`server/`](server/README.md).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Account keys never live in client code. Enable **Blob Versioning + Soft Delete**
+on the container for bug-tolerant full-overwrite saves.
 
-### `npm run eject`
+## Iterating
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+A project agent at `.github/agents/training-visualiser.agent.md` records the key
+design decisions — select it in the VS Code chat agent picker.

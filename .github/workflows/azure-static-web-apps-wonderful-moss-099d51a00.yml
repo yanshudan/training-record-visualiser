@@ -1,37 +1,41 @@
-name: Azure Static Web Apps CI/CD
+name: Deploy to Azure Blob static website
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Set Node.js 16.x
-        uses: actions/setup-node@v3
+      - name: Set Node.js 20.x
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 20.x
           cache: 'npm'
 
       - name: Install npm packages
-        run: npm install
+        run: npm ci
       - name: Build
         run: npm run build
-      - uses: azure/login@v1
+      - name: Azure login
+        uses: azure/login@v2
         with:
-           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - run: |
-           az storage blob upload-batch -s build -d '$web' --account-name hq3backup 
-      
-  
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Upload build to $web container
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az storage blob upload-batch \
+              --account-name hq3backup \
+              --source build \
+              --destination '$web' \
+              --overwrite true
+

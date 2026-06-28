@@ -1,0 +1,91 @@
+{
+  "fallbackTheme": { "inColor": "#888888", "outColor": "#555555" },
+  "bodyParts": [
+    {
+      "name": "Shoulder",
+      "theme": { "inColor": "#ffff88", "outColor": "#ffff00" },
+      "unit": "kg",
+      "defaults": { "sets": 4, "reps": 12, "weight": 20 },
+      "overloadRules": [
+        { "kind": "addReps", "amount": 1 },
+        { "kind": "addWeight", "amount": 2.5, "whenRepsAtLeast": 12, "resetRepsTo": 10 }
+      ],
+      "exercises": ["FacePull", "俯身飞鸟", "侧平举", "杠铃推举"]
+    },
+    {
+      "name": "Chest",
+      "theme": { "inColor": "#aeff4d", "outColor": "#fffc00" },
+      "unit": "kg",
+      "defaults": { "sets": 4, "reps": 12, "weight": 20 },
+      "overloadRules": [
+        { "kind": "addReps", "amount": 1 },
+        { "kind": "addWeight", "amount": 2.5, "whenRepsAtLeast": 12, "resetRepsTo": 10 }
+      ],
+      "exercises": ["上斜卧推", "上斜哑铃推举", "平板卧推", "哑铃飞鸟"]
+    },
+    {
+      "name": "Tricep",
+      "theme": { "inColor": "#f7b733", "outColor": "#fc4a1a" },
+      "unit": "kg",
+      "defaults": { "sets": 4, "reps": 12, "weight": 20 },
+      "overloadRules": [
+        { "kind": "addReps", "amount": 1 },
+        { "kind": "addWeight", "amount": 2.5, "whenRepsAtLeast": 12, "resetRepsTo": 10 }
+      ],
+      "exercises": ["屈伸", "SkullCrusher", "绳索下压", "杠铃颈后臂屈伸"]
+    },
+    {
+      "name": "Back",
+      "theme": { "inColor": "#00f260", "outColor": "#0de8ce" },
+      "unit": "kg",
+      "defaults": { "sets": 4, "reps": 12, "weight": 20 },
+      "overloadRules": [
+        { "kind": "addReps", "amount": 1 },
+        { "kind": "addWeight", "amount": 2.5, "whenRepsAtLeast": 12, "resetRepsTo": 10 }
+      ],
+      "exercises": ["高位下拉", "划船", "反手杠铃划船", "杠铃划船", "绳索划船", "T杆划船"]
+    },
+    {
+      "name": "Bicep",
+      "theme": { "inColor": "#0d87e8", "outColor": "#0d5ee8" },
+      "unit": "kg",
+      "defaults": { "sets": 4, "reps": 12, "weight": 20 },
+      "overloadRules": [
+        { "kind": "addReps", "amount": 1 },
+        { "kind": "addWeight", "amount": 2.5, "whenRepsAtLeast": 12, "resetRepsTo": 10 }
+      ],
+      "exercises": ["哑铃弯举", "杠铃弯举"]
+    },
+    {
+      "name": "Legs",
+      "theme": { "inColor": "#ff00cc", "outColor": "#ba12bb" },
+      "unit": "kg",
+      "defaults": { "sets": 4, "reps": 12, "weight": 20 },
+      "overloadRules": [
+        { "kind": "addReps", "amount": 1 },
+        { "kind": "addWeight", "amount": 2.5, "whenRepsAtLeast": 12, "resetRepsTo": 10 }
+      ],
+      "exercises": ["深蹲", "窄蹲", "硬拉"]
+    },
+    {
+      "name": "Cardio",
+      "theme": { "inColor": "#333333", "outColor": "#111111" },
+      "unit": "km",
+      "defaults": { "sets": 1, "reps": 20, "weight": 5 },
+      "overloadRules": [],
+      "exercises": ["跑步", "骑行", "游泳"]
+    }
+  ],
+  "plan": {
+    "days": [
+      { "name": "Shoulder", "bodyParts": ["Shoulder"] },
+      { "name": "Chest", "bodyParts": ["Chest"] },
+      { "name": "Tricep", "bodyParts": ["Tricep"] },
+      { "name": "Back", "bodyParts": ["Back"] },
+      { "name": "Bicep", "bodyParts": ["Bicep"] },
+      { "name": "Legs", "bodyParts": ["Legs"] }
+    ],
+    "rotation": ["Shoulder", "Chest", "Tricep", "Back", "Bicep", "Legs"]
+  },
+  "timetable": []
+}

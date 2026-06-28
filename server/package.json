@@ -1,0 +1,17 @@
+{
+  "name": "training-record-visualiser-backend",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-user backend: authenticates users and scopes Azure Blob access per user.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.17.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
