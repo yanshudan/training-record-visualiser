@@ -134,7 +134,6 @@ export function TimetableClock({ entries, nowMinute, activeId }: Props) {
         strokeWidth={2.5}
         strokeLinecap="round"
       />
-      <circle cx={hx} cy={hy} r={4.5} fill="#ff7a00" />
       <circle cx={CENTER} cy={CENTER} r={4} fill="#ff7a00" />
 
       {/* Centre read-out */}

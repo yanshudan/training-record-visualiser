@@ -17,6 +17,7 @@ import {
   IconButton,
   InputAdornment,
   MenuItem,
+  Menu,
   Stack,
   TextField,
   Typography,
@@ -90,6 +91,73 @@ function BodyPartColorChip({
         }}
       />
     </Box>
+  );
+}
+
+// A body-part pill that doubles as the picker: clicking it opens a menu of the
+// available body parts, replacing the separate dropdown + display chip pair.
+function BodyPartSelectChip({
+  value,
+  options,
+  color,
+  mode,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  color: string;
+  mode: "light" | "dark";
+  onChange: (part: string) => void;
+}) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const choices = [...new Set([...options, value])];
+  return (
+    <>
+      <Chip
+        size="small"
+        label={value}
+        onClick={(e) => setAnchor(e.currentTarget)}
+        title="Click to change body part"
+        sx={{
+          background: bodyPartGradient(color, mode),
+          color: gradientTextColor(color, mode),
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      />
+      <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>
+        {choices.map((p) => (
+          <MenuItem
+            key={p}
+            selected={p === value}
+            onClick={() => {
+              onChange(p);
+              setAnchor(null);
+            }}
+          >
+            {p}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  );
+}
+
+// A compact unit pill that cycles through the available units on each click.
+function UnitChip({ value, onChange }: { value: Unit; onChange: (unit: Unit) => void }) {
+  const next = () => {
+    const i = UNITS.indexOf(value);
+    onChange(UNITS[(i + 1) % UNITS.length]);
+  };
+  return (
+    <Chip
+      size="small"
+      variant="outlined"
+      label={value}
+      onClick={next}
+      title="Click to change unit"
+      sx={{ fontWeight: 600, cursor: "pointer", flexShrink: 0 }}
+    />
   );
 }
 
@@ -342,43 +410,23 @@ export function ExercisesPage() {
       {visible.map((ex) => (
         <Card key={ex.id}>
           <CardContent>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center">
               <TextField
                 size="small"
                 label="Name"
                 value={ex.name}
                 onChange={(e) => update(ex.id, { name: e.target.value })}
+                sx={{ flexGrow: 1, minWidth: 0 }}
               />
-              <TextField
-                select
-                size="small"
-                label="Body part"
+              <BodyPartSelectChip
                 value={ex.bodyPart}
-                onChange={(e) => update(ex.id, { bodyPart: e.target.value })}
-                sx={{ minWidth: 130 }}
-              >
-                {[...new Set([...partOptions, ex.bodyPart])].map((p) => (
-                  <MenuItem key={p} value={p}>
-                    {p}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                size="small"
-                label="Unit"
-                value={ex.unit}
-                onChange={(e) => update(ex.id, { unit: e.target.value as Unit })}
-                sx={{ minWidth: 90 }}
-              >
-                {UNITS.map((u) => (
-                  <MenuItem key={u} value={u}>
-                    {u}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <Chip size="small" label={ex.bodyPart} sx={{ background: bodyPartGradient(partColor(ex.bodyPart), mode), color: gradientTextColor(partColor(ex.bodyPart), mode), fontWeight: 600 }} />
-              <IconButton onClick={() => removeExercise(ex.id)} sx={{ ml: "auto" }}>
+                options={partOptions}
+                color={partColor(ex.bodyPart)}
+                mode={mode}
+                onChange={(p) => update(ex.id, { bodyPart: p })}
+              />
+              <UnitChip value={ex.unit} onChange={(u) => update(ex.id, { unit: u })} />
+              <IconButton size="small" onClick={() => removeExercise(ex.id)} sx={{ flexShrink: 0 }}>
                 <DeleteIcon />
               </IconButton>
             </Stack>
@@ -408,7 +456,7 @@ export function ExercisesPage() {
                         label="Amount"
                         value={rule.amount}
                         onChange={(e) => updateRule(ex.id, idx, { amount: Number(e.target.value) })}
-                        sx={{ width: 110 }}
+                        sx={{ width: { xs: 80, sm: 110 } }}
                       />
                       {rule.kind === "addWeight" && (
                         <>
@@ -418,7 +466,7 @@ export function ExercisesPage() {
                             label="When reps ≥"
                             value={rule.whenRepsAtLeast ?? 0}
                             onChange={(e) => updateRule(ex.id, idx, { whenRepsAtLeast: Number(e.target.value) })}
-                            sx={{ width: 130 }}
+                            sx={{ width: { xs: 96, sm: 130 } }}
                           />
                           <TextField
                             size="small"
@@ -426,7 +474,7 @@ export function ExercisesPage() {
                             label="Reset reps to"
                             value={rule.resetRepsTo ?? 0}
                             onChange={(e) => updateRule(ex.id, idx, { resetRepsTo: Number(e.target.value) })}
-                            sx={{ width: 130 }}
+                            sx={{ width: { xs: 96, sm: 130 } }}
                           />
                         </>
                       )}

@@ -4,7 +4,7 @@
 // are foldable and reorderable by drag & drop. The exercise definitions
 // themselves are edited on the Exercises page.
 
-import { DragEvent, useEffect, useMemo, useRef, useState } from "react";
+import { PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -52,9 +52,11 @@ export function PlanPage() {
   const [exSignal, setExSignal] = useState(0);
   // Once the user edits, the local draft is authoritative until a reload.
   const touched = useRef(false);
-  // The row currently being dragged; `key` scopes a drag to a single list so
-  // exercises and rotation steps can't be dropped into each other.
-  const dragRef = useRef<{ key: string; index: number } | null>(null);
+  // Pointer-based drag reorder (works with both mouse and touch). `key` scopes a
+  // drag to a single list so exercises and rotation steps can't cross into each
+  // other. `dragInfo` drives the live drop-target highlight.
+  const dragState = useRef<{ key: string; from: number } | null>(null);
+  const [dragInfo, setDragInfo] = useState<{ key: string; over: number | null } | null>(null);
 
   // Record a plan (days/rotation) edit and schedule an auto-save.
   const mark = () => {
@@ -89,10 +91,10 @@ export function PlanPage() {
     status === "error" || exStatus === "error"
       ? "error"
       : status === "saving" || exStatus === "saving"
-      ? "saving"
-      : status === "saved" || exStatus === "saved"
-      ? "saved"
-      : "idle";
+        ? "saving"
+        : status === "saved" || exStatus === "saved"
+          ? "saved"
+          : "idle";
 
   const parts = bodyParts.length ? bodyParts : bodyPartOrder;
   const exById = useMemo(() => new Map(exDraft.map((e) => [e.id, e])), [exDraft]);
@@ -106,22 +108,49 @@ export function PlanPage() {
 
   // --- Drag & drop ------------------------------------------------------------
   // Only the drag handle starts a drag, so the inline number fields stay
-  // editable. The row itself just handles drag-over / drop.
+  // editable. Pointer events are used (not HTML5 drag-and-drop) so reordering
+  // works on touch devices as well as with a mouse. Each row is tagged with
+  // data-dnd-* attributes so the row under the pointer can be found via
+  // document.elementFromPoint during the drag.
 
-  const dropHandlers = (key: string, index: number, onReorder: (from: number, to: number) => void) => ({
-    onDragOver: (e: DragEvent) => e.preventDefault(),
-    onDrop: (e: DragEvent) => {
-      e.preventDefault();
-      const d = dragRef.current;
-      if (d && d.key === key && d.index !== index) onReorder(d.index, index);
-      dragRef.current = null;
-    },
+  const findRow = (x: number, y: number, key: string): number | null => {
+    const el = document.elementFromPoint(x, y) as HTMLElement | null;
+    const row = el?.closest<HTMLElement>("[data-dnd-key]");
+    if (row && row.dataset.dndKey === key && row.dataset.dndIndex != null) {
+      return Number(row.dataset.dndIndex);
+    }
+    return null;
+  };
+
+  const dropHandlers = (key: string, index: number) => ({
+    "data-dnd-key": key,
+    "data-dnd-index": index,
   });
 
-  const dragHandleHandlers = (key: string, index: number) => ({
-    draggable: true,
-    onDragStart: () => {
-      dragRef.current = { key, index };
+  const dragHandleHandlers = (
+    key: string,
+    index: number,
+    onReorder: (from: number, to: number) => void
+  ) => ({
+    onPointerDown: (e: ReactPointerEvent) => {
+      e.preventDefault();
+      dragState.current = { key, from: index };
+      setDragInfo({ key, over: index });
+
+      const move = (ev: PointerEvent) => {
+        const over = findRow(ev.clientX, ev.clientY, key);
+        setDragInfo({ key, over });
+      };
+      const up = (ev: PointerEvent) => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+        const to = findRow(ev.clientX, ev.clientY, key);
+        if (to != null && to !== index) onReorder(index, to);
+        dragState.current = null;
+        setDragInfo(null);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
     },
   });
 
@@ -212,7 +241,7 @@ export function PlanPage() {
           <Typography variant="h6">Training days</Typography>
           <Chip size="small" variant="outlined" label={`${days.length}`} sx={{ ml: 1 }} />
         </AccordionSummary>
-        <AccordionDetails>
+        <AccordionDetails sx={{ px: { xs: 1, sm: 2 } }}>
           <Stack spacing={2}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
@@ -231,7 +260,7 @@ export function PlanPage() {
 
             {days.map((day) => (
               <Card key={day.id}>
-                <CardContent>
+                <CardContent sx={{ px: { xs: 1, sm: 2 } }}>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <TextField
                       size="small"
@@ -256,18 +285,22 @@ export function PlanPage() {
                           direction="row"
                           spacing={1}
                           alignItems="center"
-                          {...dropHandlers(`day:${day.id}`, idx, (from, to) => reorderDayExercises(day.id, from, to))}
+                          {...dropHandlers(`day:${day.id}`, idx)}
                           sx={{
                             borderRadius: 1,
-                            px: 0.5,
+                            px: { xs: 0, sm: 0.5 },
                             py: 0.75,
+                            bgcolor:
+                              dragInfo?.key === `day:${day.id}` && dragInfo.over === idx
+                                ? "action.selected"
+                                : undefined,
                             "&:hover": { bgcolor: "action.hover" },
                           }}
                         >
                           <DragIndicatorIcon
                             fontSize="small"
-                            {...dragHandleHandlers(`day:${day.id}`, idx)}
-                            sx={{ color: "text.disabled", cursor: "grab", flexShrink: 0 }}
+                            {...dragHandleHandlers(`day:${day.id}`, idx, (from, to) => reorderDayExercises(day.id, from, to))}
+                            sx={{ color: "text.disabled", cursor: "grab", flexShrink: 0, touchAction: "none" }}
                           />
                           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                             {/* Line 1: exercise name followed by its body-part pill */}
@@ -464,18 +497,20 @@ export function PlanPage() {
                         direction="row"
                         spacing={1}
                         alignItems="center"
-                        {...dropHandlers("rota", idx, reorderRotation)}
+                        {...dropHandlers("rota", idx)}
                         sx={{
                           borderRadius: 1,
                           px: 0.5,
                           py: 0.25,
+                          bgcolor:
+                            dragInfo?.key === "rota" && dragInfo.over === idx ? "action.selected" : undefined,
                           "&:hover": { bgcolor: "action.hover" },
                         }}
                       >
                         <DragIndicatorIcon
                           fontSize="small"
-                          {...dragHandleHandlers("rota", idx)}
-                          sx={{ color: "text.disabled", cursor: "grab" }}
+                          {...dragHandleHandlers("rota", idx, reorderRotation)}
+                          sx={{ color: "text.disabled", cursor: "grab", touchAction: "none" }}
                         />
                         <Typography color="text.secondary" sx={{ width: 56 }}>
                           Day {idx + 1}

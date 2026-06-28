@@ -296,6 +296,21 @@ export function TimetablePage() {
           </CardContent>
         </Card>
       ))}
+
+      {/* Large add button at the foot of a long list, so you don't have to
+          scroll back up to the header action. */}
+      {draft.length > 4 && (
+        <Button
+          variant="outlined"
+          size="large"
+          fullWidth
+          startIcon={<AddIcon />}
+          onClick={addEntry}
+          sx={{ py: 1.5 }}
+        >
+          Add block
+        </Button>
+      )}
     </Stack>
   );
 }
