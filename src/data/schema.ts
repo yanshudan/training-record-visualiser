@@ -13,6 +13,12 @@ export interface TrainSet {
   weight: number;
   unit: Unit;
   reps: number;
+  /**
+   * Extra drop/dual-set stages performed back-to-back after the main
+   * weight/reps, counted as part of THIS single set (so a dual set = 1 extra
+   * stage, a triple = 2). Absent for a normal single-weight set.
+   */
+  stages?: { weight: number; reps: number }[];
   /** Seconds spent performing the set (work timer). */
   workSeconds?: number;
   /** Seconds rested after the set before the next one (rest timer). */
@@ -68,6 +74,13 @@ export interface ExerciseDef {
   defaultSets: number;
   defaultReps: number;
   defaultWeight: number;
+  /**
+   * Extra drop/dual-set stages per working set, each with its own weight and
+   * starting reps (performed back-to-back after the main weight/reps within the
+   * SAME set). Length 1 = dual set, 2 = triple set. Empty/undefined = normal
+   * single set. The set count is shared with the main set (not configured here).
+   */
+  dropStages?: { weight: number; reps: number }[];
   overloadRules: OverloadRule[];
 }
 

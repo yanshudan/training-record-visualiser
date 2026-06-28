@@ -42,6 +42,8 @@ interface PlannedSet {
   targetReps: number;
   reps: number;
   done: boolean;
+  /** Extra drop/dual-set stages, performed within this single set. */
+  drops: { weight: number; reps: number }[];
   workSeconds?: number;
   restSeconds?: number;
 }
@@ -69,29 +71,188 @@ function fmt(seconds: number): string {
 
 /** Accent colour for the current set phase: working, resting, or stopped. */
 function phaseColor(phase: "work" | "rest" | "stopped"): string {
-  if (phase === "work") return "success.main";
+  if (phase === "work") return "#ef6c00";
   if (phase === "rest") return "warning.main";
   return "text.disabled";
+}
+
+/**
+ * Vertical "drum" picker for reps — scroll/flick up or down to snap to adjacent
+ * numbers, iOS-passcode style. The centred number is the selected value.
+ */
+function RepWheel({
+  value,
+  onChange,
+  max = 50,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  max?: number;
+}) {
+  const ITEM = 18; // px per number
+  const H = ITEM * 3; // three visible rows (selected + one faded neighbour each side)
+  const ref = useRef<HTMLDivElement | null>(null);
+  const scrolling = useRef(false);
+  const settle = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const items = useMemo(() => Array.from({ length: max + 1 }, (_, i) => i), [max]);
+
+  // Keep the wheel positioned on `value` whenever it changes externally and the
+  // user isn't mid-scroll (so we never fight their finger).
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || scrolling.current) return;
+    const target = value * ITEM;
+    if (Math.abs(el.scrollTop - target) > 1) el.scrollTop = target;
+  }, [value]);
+
+  const handleScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    scrolling.current = true;
+    if (settle.current) clearTimeout(settle.current);
+    settle.current = setTimeout(() => {
+      const idx = Math.max(0, Math.min(max, Math.round(el.scrollTop / ITEM)));
+      scrolling.current = false;
+      el.scrollTop = idx * ITEM; // re-snap exactly
+      if (idx !== value) onChange(idx);
+    }, 120);
+  };
+
+  return (
+    <Box sx={{ position: "relative", width: 48, height: H, flexShrink: 0 }}>
+      {/* highlight band marking the selected (middle) row */}
+      <Box
+        sx={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: ITEM,
+          height: ITEM,
+          borderTop: 1,
+          borderBottom: 1,
+          borderColor: "divider",
+          pointerEvents: "none",
+        }}
+      />
+      <Box
+        ref={ref}
+        onScroll={handleScroll}
+        sx={{
+          height: H,
+          overflowY: "scroll",
+          scrollSnapType: "y mandatory",
+          py: `${ITEM}px`,
+          // Fade the top/bottom (adjacent) numbers so the wheel reads compact.
+          maskImage: "linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent)",
+          "&::-webkit-scrollbar": { display: "none" },
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {items.map((n) => (
+          <Box
+            key={n}
+            sx={{
+              height: ITEM,
+              scrollSnapAlign: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontVariantNumeric: "tabular-nums",
+              fontWeight: n === value ? 700 : 400,
+              fontSize: n === value ? 15 : 12,
+              color: n === value ? "text.primary" : "text.disabled",
+              transition: "font-size 0.1s, color 0.1s",
+            }}
+          >
+            {n}
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+/** Shared weight field + rep wheel, used by both normal sets and drop stages. */
+function WeightReps({
+  weight,
+  reps,
+  unit,
+  onWeight,
+  onReps,
+}: {
+  weight: number;
+  reps: number;
+  unit: string;
+  onWeight: (v: number) => void;
+  onReps: (v: number) => void;
+}) {
+  return (
+    <>
+      <TextField
+        size="small"
+        type="number"
+        value={weight}
+        onChange={(e) => onWeight(Number(e.target.value))}
+        sx={{ width: 80, flexShrink: 0 }}
+        InputProps={{ endAdornment: <InputAdornment position="end">{unit}</InputAdornment> }}
+      />
+      <RepWheel value={reps} onChange={onReps} />
+    </>
+  );
+}
+
+const TODAY_SESSION_KEY = "trv:todaySession";
+
+interface PersistedSession {
+  date: string;
+  bodyPart: string;
+  dayId: string;
+  dayName: string;
+  plan: PlannedExercise[];
+  active: ActivePos | null;
+  lastSetSeconds: number | null;
+  lastRestSeconds: number | null;
+  saved: boolean;
+  expanded: Record<number, boolean>;
+}
+
+/** Load a same-day in-progress session from localStorage, if any. */
+function loadTodaySession(): PersistedSession | null {
+  try {
+    const raw = localStorage.getItem(TODAY_SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as PersistedSession;
+    return s.date === todayISO() && Array.isArray(s.plan) && s.plan.length > 0 ? s : null;
+  } catch {
+    return null;
+  }
 }
 
 export function TodayPage() {
   const { records, exercises, planDays, rotation, upsertRecord, colorForBodyPart } = useAppData();
   const mode = useTheme().palette.mode;
 
+  // Restore an in-progress session (same day) so navigating away & back — or a
+  // reload — doesn't lose the workout. The active timer uses absolute
+  // timestamps, so elapsed time stays correct across reloads.
+  const [persisted] = useState(loadTodaySession);
+
   const [view, setView] = useState<"plan" | "timetable">("plan");
-  const [bodyPart, setBodyPart] = useState<string>("");
-  const [dayId, setDayId] = useState<string>("");
-  const [dayName, setDayName] = useState<string>("");
-  const [plan, setPlan] = useState<PlannedExercise[]>([]);
-  const [active, setActive] = useState<ActivePos | null>(null);
+  const [bodyPart, setBodyPart] = useState<string>(persisted?.bodyPart ?? "");
+  const [dayId, setDayId] = useState<string>(persisted?.dayId ?? "");
+  const [dayName, setDayName] = useState<string>(persisted?.dayName ?? "");
+  const [plan, setPlan] = useState<PlannedExercise[]>(persisted?.plan ?? []);
+  const [active, setActive] = useState<ActivePos | null>(persisted?.active ?? null);
   const [tick, setTick] = useState(0);
-  const [lastSetSeconds, setLastSetSeconds] = useState<number | null>(null);
-  const [lastRestSeconds, setLastRestSeconds] = useState<number | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [lastSetSeconds, setLastSetSeconds] = useState<number | null>(persisted?.lastSetSeconds ?? null);
+  const [lastRestSeconds, setLastRestSeconds] = useState<number | null>(persisted?.lastRestSeconds ?? null);
+  const [saved, setSaved] = useState(persisted?.saved ?? false);
   // Manual fold overrides by exercise index; completed exercises fold by default.
-  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<number, boolean>>(persisted?.expanded ?? {});
   // Guards the auto-save so it fires at most once per generated plan.
-  const autoSavedRef = useRef(false);
+  const autoSavedRef = useRef(persisted?.saved ?? false);
 
   // The next day in the rotation, derived from how many sessions are logged.
   const suggestedDayId = useMemo(() => {
@@ -102,13 +263,23 @@ export function TodayPage() {
   const applyPlan = (dp: DayPlan) => {
     setBodyPart(dp.bodyPart);
     setPlan(
-      dp.exercises.map((t) => ({
-        exerciseId: t.exerciseId,
-        name: t.name,
-        bodyPart: t.bodyPart,
-        unit: t.unit,
-        sets: t.sets.map((s) => ({ weight: s.weight, targetReps: s.reps, reps: s.reps, done: false })),
-      }))
+      dp.exercises.map((t) => {
+        const def = exercises.find((e) => e.id === t.exerciseId);
+        const stages = def?.dropStages ?? [];
+        return {
+          exerciseId: t.exerciseId,
+          name: t.name,
+          bodyPart: t.bodyPart,
+          unit: t.unit,
+          sets: t.sets.map((s) => ({
+            weight: s.weight,
+            targetReps: s.reps,
+            reps: s.reps,
+            done: false,
+            drops: stages.map((st) => ({ weight: st.weight, reps: st.reps })),
+          })),
+        };
+      })
     );
     setActive(null);
     setSaved(false);
@@ -205,6 +376,54 @@ export function TodayPage() {
     });
   };
 
+  // --- Drop/dual-set stages within a single set ------------------------------
+  const addDrop = (ex: number, set: number) => {
+    setPlan((prev) =>
+      prev.map((e, i) =>
+        i !== ex
+          ? e
+          : {
+              ...e,
+              sets: e.sets.map((s, j) =>
+                j !== set ? s : { ...s, drops: [...s.drops, { weight: s.weight, reps: s.reps }] }
+              ),
+            }
+      )
+    );
+  };
+
+  const updateDrop = (ex: number, set: number, drop: number, patch: Partial<{ weight: number; reps: number }>) => {
+    setPlan((prev) =>
+      prev.map((e, i) =>
+        i !== ex
+          ? e
+          : {
+              ...e,
+              sets: e.sets.map((s, j) =>
+                j !== set
+                  ? s
+                  : { ...s, drops: s.drops.map((d, k) => (k === drop ? { ...d, ...patch } : d)) }
+              ),
+            }
+      )
+    );
+  };
+
+  const removeDrop = (ex: number, set: number, drop: number) => {
+    setPlan((prev) =>
+      prev.map((e, i) =>
+        i !== ex
+          ? e
+          : {
+              ...e,
+              sets: e.sets.map((s, j) =>
+                j !== set ? s : { ...s, drops: s.drops.filter((_, k) => k !== drop) }
+              ),
+            }
+      )
+    );
+  };
+
   const removeExercise = (ex: number) => setPlan((prev) => prev.filter((_, i) => i !== ex));
 
   const addExercise = (name: string) => {
@@ -222,6 +441,7 @@ export function TodayPage() {
           targetReps: s.reps,
           reps: s.reps,
           done: false,
+          drops: (def?.dropStages ?? []).map((st) => ({ weight: st.weight, reps: st.reps })),
         })),
       },
     ]);
@@ -238,6 +458,7 @@ export function TodayPage() {
             weight: s.weight,
             unit: e.unit as Movement["sets"][number]["unit"],
             reps: s.reps,
+            stages: s.drops.length ? s.drops.map((d) => ({ weight: d.weight, reps: d.reps })) : undefined,
             workSeconds: s.workSeconds,
             restSeconds: s.restSeconds,
           })),
@@ -264,6 +485,28 @@ export function TodayPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan, saved]);
+
+  // Persist the in-progress session so it survives navigation away/back & reload.
+  useEffect(() => {
+    if (plan.length === 0) return;
+    const session: PersistedSession = {
+      date: todayISO(),
+      bodyPart,
+      dayId,
+      dayName,
+      plan,
+      active,
+      lastSetSeconds,
+      lastRestSeconds,
+      saved,
+      expanded,
+    };
+    try {
+      localStorage.setItem(TODAY_SESSION_KEY, JSON.stringify(session));
+    } catch {
+      /* ignore quota / serialization errors */
+    }
+  }, [plan, active, bodyPart, dayId, dayName, lastSetSeconds, lastRestSeconds, saved, expanded]);
 
   const dayColor = bodyPart ? colorForBodyPart(bodyPart) : undefined;
 
@@ -305,7 +548,6 @@ export function TodayPage() {
                 ))}
               </TextField>
             )}
-            <Button onClick={() => (dayId ? buildFromDay(dayId) : buildPlan(bodyPart))}>Regenerate</Button>
           </Stack>
 
       {/* Active timer panel */}
@@ -320,7 +562,7 @@ export function TodayPage() {
             </Typography>
             <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
               {active.phase === "work" ? (
-                <Button variant="contained" color="success" startIcon={<CheckIcon />} onClick={finishSet}>
+                <Button variant="contained" color="warning" startIcon={<CheckIcon />} onClick={finishSet}>
                   Finish set
                 </Button>
               ) : (
@@ -365,7 +607,7 @@ export function TodayPage() {
                 >
                   {exercise.name}
                 </Typography>
-                {exDone && <Chip size="small" color="success" icon={<CheckCircleIcon />} label="Done" />}
+                {exDone && <Chip size="small" color="warning" icon={<CheckCircleIcon />} label="Done" />}
                 {!exDone && exercise.sets.length > 0 && (
                   <Chip size="small" variant="outlined" label={`${doneCount}/${exercise.sets.length}`} />
                 )}
@@ -385,62 +627,57 @@ export function TodayPage() {
               </Stack>
               <Collapse in={isExpanded} unmountOnExit>
                 <Divider sx={{ my: 1 }} />
-                <Stack spacing={1}>
+                <Stack spacing={0.5}>
                   {exercise.sets.map((set, setIdx) => {
                     const isActive = active?.ex === exIdx && active?.set === setIdx;
                     const missed = set.done && set.reps < set.targetReps;
                     return (
-                      <Stack key={setIdx} direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="body2" sx={{ width: 32 }} color="text.secondary">
+                      <Box
+                        key={setIdx}
+                        sx={{
+                          borderRadius: 1,
+                          px: 0.5,
+                          py: 0.25,
+                          bgcolor: isActive
+                            ? "rgba(255, 167, 38, 0.18)"
+                            : set.done
+                              ? "rgba(255, 152, 0, 0.40)"
+                              : "transparent",
+                        }}
+                      >
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Typography variant="body2" sx={{ width: 28, flexShrink: 0 }} color="text.secondary">
                           #{setIdx + 1}
                         </Typography>
-                        <TextField
-                          size="small"
-                          type="number"
-                          value={set.weight}
-                          onChange={(e) => updateSet(exIdx, setIdx, { weight: Number(e.target.value) })}
-                          sx={{ width: 104 }}
-                          InputProps={{
-                            endAdornment: <InputAdornment position="end">{exercise.unit}</InputAdornment>,
-                          }}
+                        <WeightReps
+                          weight={set.weight}
+                          reps={set.reps}
+                          unit={exercise.unit}
+                          onWeight={(v) => updateSet(exIdx, setIdx, { weight: v })}
+                          onReps={(v) => updateSet(exIdx, setIdx, { reps: v })}
                         />
-                        <IconButton
-                          size="small"
-                          onClick={() => updateSet(exIdx, setIdx, { reps: Math.max(0, set.reps - 1) })}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                        <TextField
-                          size="small"
-                          type="number"
-                          value={set.reps}
-                          onChange={(e) => updateSet(exIdx, setIdx, { reps: Math.max(0, Number(e.target.value)) })}
-                          sx={{ width: 64 }}
-                          inputProps={{ style: { textAlign: "center" }, min: 0 }}
-                        />
-                        <IconButton
-                          size="small"
-                          onClick={() => updateSet(exIdx, setIdx, { reps: set.reps + 1 })}
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                        <Typography
-                          variant="caption"
-                          sx={{ width: 40 }}
-                          color={missed ? "warning.main" : "text.secondary"}
-                        >
-                          /{set.targetReps}
-                        </Typography>
+                        <Stack sx={{ flexShrink: 0 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.15 }}>
+                            reps
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{ lineHeight: 1.15 }}
+                            color={missed ? "warning.main" : "text.secondary"}
+                          >
+                            /{set.targetReps}
+                          </Typography>
+                        </Stack>
                         <Box sx={{ flexGrow: 1 }} />
-                        <Box sx={{ width: 80, display: "flex", justifyContent: "flex-end" }}>
+                        <Box sx={{ width: 72, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
                           {isActive ? (
                             <Chip
                               size="small"
-                              color={active.phase === "work" ? "success" : "warning"}
+                              color={active.phase === "work" ? "warning" : "info"}
                               label={active.phase === "work" ? "working" : "resting"}
                             />
                           ) : set.done ? (
-                            <CheckIcon color={missed ? "warning" : "success"} />
+                            <CheckIcon sx={{ color: missed ? "warning.main" : "#ef6c00" }} />
                           ) : !active ? (
                             <IconButton color="primary" size="small" onClick={() => startSet(exIdx, setIdx)}>
                               <PlayArrowIcon />
@@ -456,7 +693,47 @@ export function TodayPage() {
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
-                      </Stack>
+                        </Stack>
+                        {/* Drop/dual-set stages performed within this single set */}
+                        <Stack spacing={0.5} sx={{ pl: 4, mt: set.drops.length ? 0.5 : 0 }}>
+                          {set.drops.map((drop, dropIdx) => (
+                            <Stack key={dropIdx} direction="row" alignItems="center" spacing={0.5}>
+                              <Typography variant="caption" sx={{ width: 24, flexShrink: 0 }} color="text.secondary">
+                                ↳{dropIdx + 2}
+                              </Typography>
+                              <WeightReps
+                                weight={drop.weight}
+                                reps={drop.reps}
+                                unit={exercise.unit}
+                                onWeight={(v) => updateDrop(exIdx, setIdx, dropIdx, { weight: v })}
+                                onReps={(v) => updateDrop(exIdx, setIdx, dropIdx, { reps: v })}
+                              />
+                              <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                                reps
+                              </Typography>
+                              <Box sx={{ flexGrow: 1 }} />
+                              <IconButton
+                                size="small"
+                                onClick={() => removeDrop(exIdx, setIdx, dropIdx)}
+                                sx={{ color: "text.disabled" }}
+                                aria-label="Remove this drop stage"
+                              >
+                                <RemoveIcon fontSize="small" />
+                              </IconButton>
+                            </Stack>
+                          ))}
+                          <Box>
+                            <Button
+                              size="small"
+                              startIcon={<AddIcon />}
+                              onClick={() => addDrop(exIdx, setIdx)}
+                              sx={{ color: "text.secondary" }}
+                            >
+                              Add drop
+                            </Button>
+                          </Box>
+                        </Stack>
+                      </Box>
                     );
                   })}
                 </Stack>
@@ -490,7 +767,7 @@ export function TodayPage() {
         <Button variant="contained" size="large" startIcon={<SaveIcon />} onClick={saveSession} disabled={plan.length === 0}>
           Save today's session
         </Button>
-        {saved && <Chip color="success" label="Saved" />}
+        {saved && <Chip color="primary" label="Saved" />}
       </Stack>
         </Stack>
       )}

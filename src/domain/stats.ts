@@ -9,7 +9,11 @@ export function setVolume(weight: number, reps: number): number {
 }
 
 export function movementVolume(movement: Movement): number {
-  return movement.sets.reduce((sum, s) => sum + setVolume(s.weight, s.reps), 0);
+  return movement.sets.reduce((sum, s) => {
+    let v = setVolume(s.weight, s.reps);
+    if (s.stages) for (const st of s.stages) v += setVolume(st.weight, st.reps);
+    return sum + v;
+  }, 0);
 }
 
 /** Epley estimated 1-rep max for a set. */

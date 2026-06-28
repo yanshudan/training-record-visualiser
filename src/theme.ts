@@ -5,11 +5,12 @@ import { createTheme, PaletteMode } from "@mui/material";
 // for hero surfaces, primary call-to-actions and accents.
 export const energyGradient = "linear-gradient(135deg, #ff7a00 0%, #ffc400 100%)";
 
-// Page backdrop: a warm orange glow over a dark or light base depending on mode.
+// Page backdrop: a warm orange glow over a warm, orange-tinted base (never pure
+// black or white) in either mode.
 export function appBackground(mode: PaletteMode): string {
   return mode === "dark"
-    ? "radial-gradient(1200px 420px at 50% -8%, rgba(255,138,0,0.20), rgba(255,196,0,0.05) 35%, transparent 70%), #0b0b0d"
-    : "radial-gradient(1200px 420px at 50% -8%, rgba(255,138,0,0.16), rgba(255,196,0,0.10) 35%, transparent 70%), #f5f5f2";
+    ? "radial-gradient(1200px 460px at 50% -8%, rgba(255,138,0,0.34), rgba(255,196,0,0.10) 38%, transparent 72%), #1c130b"
+    : "radial-gradient(1200px 460px at 50% -8%, rgba(255,138,0,0.28), rgba(255,196,0,0.18) 38%, transparent 72%), #f0e2cd";
 }
 
 export function createAppTheme(mode: PaletteMode) {
@@ -20,8 +21,8 @@ export function createAppTheme(mode: PaletteMode) {
       secondary: { main: "#ffc400" },
       background:
         mode === "dark"
-          ? { default: "#0b0b0d", paper: "#16161a" }
-          : { default: "#f5f5f2", paper: "#ffffff" },
+          ? { default: "#1c130b", paper: "#2a1d11" }
+          : { default: "#f0e2cd", paper: "#faf0df" },
     },
     shape: { borderRadius: 12 },
     typography: {

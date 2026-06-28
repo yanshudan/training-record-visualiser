@@ -287,6 +287,29 @@ export function PlanPage() {
                                   }}
                                 />
                               )}
+                              {ex && (() => {
+                                const stages = ex.dropStages ?? [];
+                                const count = stages.length;
+                                const bg = [
+                                  "linear-gradient(135deg, #ffcf99 0%, #ffe3a6 100%)",
+                                  "linear-gradient(135deg, #ff9a3d 0%, #ffc400 100%)",
+                                  "linear-gradient(135deg, #e85d00 0%, #ff9a00 100%)",
+                                ][count];
+                                const fg = count === 0 ? "rgba(0,0,0,0.82)" : "#fff";
+                                const label = count === 2 ? "Triple set" : count === 1 ? "Dual set" : "Single set";
+                                return (
+                                  <Chip
+                                    size="small"
+                                    label={label}
+                                    onClick={() => {
+                                      const seed = { weight: ex.defaultWeight, reps: ex.defaultReps };
+                                      const next = count >= 2 ? [] : [...stages, seed];
+                                      updateExercise(ex.id, { dropStages: next });
+                                    }}
+                                    sx={{ fontWeight: 600, cursor: "pointer", background: bg, color: fg, "&:hover": { background: bg, filter: "brightness(0.95)" } }}
+                                  />
+                                );
+                              })()}
                             </Stack>
                             {/* Line 2: editable working-set template */}
                             {ex && (
@@ -298,6 +321,15 @@ export function PlanPage() {
                                 useFlexGap
                                 sx={{ mt: 1 }}
                               >
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  label="Sets"
+                                  value={ex.defaultSets}
+                                  onChange={(e) => updateExercise(ex.id, { defaultSets: Math.max(1, Number(e.target.value)) })}
+                                  sx={{ width: 56 }}
+                                  inputProps={{ min: 1 }}
+                                />
                                 <TextField
                                   size="small"
                                   type="number"
@@ -317,15 +349,6 @@ export function PlanPage() {
                                 <TextField
                                   size="small"
                                   type="number"
-                                  label="Sets"
-                                  value={ex.defaultSets}
-                                  onChange={(e) => updateExercise(ex.id, { defaultSets: Math.max(1, Number(e.target.value)) })}
-                                  sx={{ width: 56 }}
-                                  inputProps={{ min: 1 }}
-                                />
-                                <TextField
-                                  size="small"
-                                  type="number"
                                   label="Reps"
                                   value={ex.defaultReps}
                                   onChange={(e) => updateExercise(ex.id, { defaultReps: Math.max(0, Number(e.target.value)) })}
@@ -334,6 +357,57 @@ export function PlanPage() {
                                 />
                               </Stack>
                             )}
+                            {/* Drop/dual-set stages: per-stage weight + starting reps (set count is shared) */}
+                            {ex && (ex.dropStages ?? []).map((st, sIdx) => (
+                              <Stack
+                                key={sIdx}
+                                direction="row"
+                                spacing={0.75}
+                                alignItems="center"
+                                flexWrap="wrap"
+                                useFlexGap
+                                sx={{ mt: 0.75 }}
+                              >
+                                <Typography variant="caption" color="text.secondary" sx={{ width: 56, flexShrink: 0 }}>
+                                  {`\u21B3 Drop ${sIdx + 2}`}
+                                </Typography>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  label="Weight"
+                                  value={st.weight}
+                                  onChange={(e) => {
+                                    const stages = (ex.dropStages ?? []).map((x, i) =>
+                                      i === sIdx ? { ...x, weight: Math.max(0, Number(e.target.value)) } : x
+                                    );
+                                    updateExercise(ex.id, { dropStages: stages });
+                                  }}
+                                  sx={{ width: 84 }}
+                                  inputProps={{ min: 0 }}
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end" sx={{ ml: 0 }}>
+                                        {ex.unit}
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  label="Reps"
+                                  value={st.reps}
+                                  onChange={(e) => {
+                                    const stages = (ex.dropStages ?? []).map((x, i) =>
+                                      i === sIdx ? { ...x, reps: Math.max(0, Number(e.target.value)) } : x
+                                    );
+                                    updateExercise(ex.id, { dropStages: stages });
+                                  }}
+                                  sx={{ width: 64 }}
+                                  inputProps={{ min: 0 }}
+                                />
+                              </Stack>
+                            ))}
                           </Box>
                           <IconButton size="small" onClick={() => removeExerciseFromDay(day.id, idx)} sx={{ flexShrink: 0 }}>
                             <DeleteIcon fontSize="small" />
